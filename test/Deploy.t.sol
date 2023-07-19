@@ -3,7 +3,6 @@ pragma solidity 0.8.19;
 
 import "forge-std/Test.sol";
 import "forge-std/StdJson.sol";
-import "../script/DeploySinkDrain.s.sol";
 import "../script/DeployVelodromeV2.s.sol";
 import "../script/DeployGaugesAndPoolsV2.s.sol";
 
@@ -33,7 +32,6 @@ contract TestDeploy is BaseTest {
     }
 
     // Scripts to test
-    DeploySinkDrain deploySinkDrain;
     DeployVelodromeV2 deployVelodromeV2;
     DeployGaugesAndPoolsV2 deployGaugesAndPoolsV2;
 
@@ -42,9 +40,8 @@ contract TestDeploy is BaseTest {
     }
 
     function _setUp() public override {
-        _forkSetupBefore(constantsFilename);
+        _forkSetupBefore();
 
-        deploySinkDrain = new DeploySinkDrain();
         deployVelodromeV2 = new DeployVelodromeV2();
         deployGaugesAndPoolsV2 = new DeployGaugesAndPoolsV2();
 
@@ -60,11 +57,9 @@ contract TestDeploy is BaseTest {
         emergencyCouncil = abi.decode(vm.parseJson(jsonConstants, ".emergencyCouncil"), (address));
 
         // Use test account for deployment
-        stdstore.target(address(deploySinkDrain)).sig("deployerAddress()").checked_write(testDeployer);
         stdstore.target(address(deployVelodromeV2)).sig("deployerAddress()").checked_write(testDeployer);
         stdstore.target(address(deployGaugesAndPoolsV2)).sig("deployerAddress()").checked_write(testDeployer);
         vm.deal(testDeployer, TOKEN_10K);
-        deal(address(vVELO), testDeployer, TOKEN_1);
     }
 
     function testLoadedState() public {
@@ -77,13 +72,6 @@ contract TestDeploy is BaseTest {
     }
 
     function testDeployScript() public {
-        deploySinkDrain.run();
-        sinkDrain = deploySinkDrain.sinkDrain();
-
-        // simulate gov creating a gauge of the sinkDrain
-        vm.prank(vVoter.governor());
-        vVoter.createGauge(address(sinkDrain));
-
         deployVelodromeV2.run();
         deployGaugesAndPoolsV2.run();
 
@@ -100,64 +88,33 @@ contract TestDeploy is BaseTest {
         }
         assertTrue(deployVelodromeV2.voter().isWhitelistedToken(address(deployVelodromeV2.VELO())));
 
-        assertTrue(address(deployVelodromeV2.vVELO()) != address(0));
-        assertTrue(address(deployVelodromeV2.vEscrow()) != address(0));
         assertTrue(address(deployVelodromeV2.WETH()) == address(WETH));
-        assertTrue(address(deployVelodromeV2.vDistributor()) != address(0));
 
         // PoolFactory
-        assertEq(deployVelodromeV2.factory().sinkConverter(), address(deployVelodromeV2.sinkConverter()));
-        assertEq(deployVelodromeV2.factory().velo(), address(deployVelodromeV2.vVELO()));
-        assertEq(deployVelodromeV2.factory().veloV2(), address(deployVelodromeV2.VELO()));
         assertEq(deployVelodromeV2.factory().voter(), address(deployVelodromeV2.voter()));
         assertEq(deployVelodromeV2.factory().stableFee(), 5);
         assertEq(deployVelodromeV2.factory().volatileFee(), 30);
 
         // v2 core
         // From _coreSetup()
-        assertTrue(address(vFactory) != address(0));
         assertTrue(address(deployVelodromeV2.forwarder()) != address(0));
         assertEq(address(deployVelodromeV2.artProxy().ve()), address(deployVelodromeV2.escrow()));
         assertEq(deployVelodromeV2.escrow().voter(), address(deployVelodromeV2.voter()));
         assertEq(deployVelodromeV2.escrow().artProxy(), address(deployVelodromeV2.artProxy()));
         assertEq(address(deployVelodromeV2.distributor().ve()), address(deployVelodromeV2.escrow()));
-        assertEq(deployVelodromeV2.router().v1Factory(), address(vFactory));
         assertEq(deployVelodromeV2.router().defaultFactory(), address(deployVelodromeV2.factory()));
         assertEq(deployVelodromeV2.router().voter(), address(deployVelodromeV2.voter()));
         assertEq(address(deployVelodromeV2.router().weth()), address(WETH));
         assertEq(deployVelodromeV2.distributor().minter(), address(deployVelodromeV2.minter()));
         assertEq(deployVelodromeV2.VELO().minter(), address(deployVelodromeV2.minter()));
-        assertEq(deployVelodromeV2.VELO().sinkManager(), address(deployVelodromeV2.sinkManager()));
 
-        assertEq(deployVelodromeV2.voter().v1Factory(), address(vFactory));
         assertEq(deployVelodromeV2.voter().minter(), address(deployVelodromeV2.minter()));
         assertEq(address(deployVelodromeV2.minter().velo()), address(deployVelodromeV2.VELO()));
         assertEq(address(deployVelodromeV2.minter().voter()), address(deployVelodromeV2.voter()));
         assertEq(address(deployVelodromeV2.minter().ve()), address(deployVelodromeV2.escrow()));
         assertEq(address(deployVelodromeV2.minter().rewardsDistributor()), address(deployVelodromeV2.distributor()));
 
-        // SinkManager
-        assertTrue(deployVelodromeV2.facilitatorImplementation() != address(0));
-        assertEq(
-            deployVelodromeV2.sinkManager().facilitatorImplementation(),
-            deployVelodromeV2.facilitatorImplementation()
-        );
-        assertEq(address(deployVelodromeV2.sinkManager().voter()), address(deployVelodromeV2.vVoter()));
-        assertEq(address(deployVelodromeV2.sinkManager().velo()), address(deployVelodromeV2.vVELO()));
-        assertEq(address(deployVelodromeV2.sinkManager().veloV2()), address(deployVelodromeV2.VELO()));
-        assertEq(address(deployVelodromeV2.sinkManager().ve()), address(deployVelodromeV2.vEscrow()));
-        assertEq(address(deployVelodromeV2.sinkManager().veV2()), address(deployVelodromeV2.escrow()));
-        assertEq(
-            address(deployVelodromeV2.sinkManager().rewardsDistributor()),
-            address(deployVelodromeV2.vDistributor())
-        );
-        assertGt(deployVelodromeV2.sinkManager().ownedTokenId(), 0);
-        assertTrue(address(deployVelodromeV2.sinkManager().gauge()) != address(0));
-        assertEq(deployVelodromeV2.sinkManager().owner(), address(0));
-
         // Permissions
-        assertEq(deployVelodromeV2.sinkDrain().owner(), address(0));
-        assertEq(deployVelodromeV2.sinkManager().owner(), address(0));
         assertEq(deployVelodromeV2.escrow().team(), team);
         assertEq(deployVelodromeV2.escrow().allowedManager(), team);
         assertEq(deployVelodromeV2.factory().pauser(), team);

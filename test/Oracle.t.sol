@@ -27,11 +27,10 @@ contract OracleTest is BaseTest {
         escrow = new VotingEscrow(address(forwarder), address(VELO), address(factoryRegistry));
         VeArtProxy artProxy = new VeArtProxy(address(escrow));
         escrow.setArtProxy(address(artProxy));
-        voter = new Voter(address(forwarder), address(escrow), address(factoryRegistry), address(vFactory));
+        voter = new Voter(address(forwarder), address(escrow), address(factoryRegistry));
         router = new Router(
             address(forwarder),
             address(factoryRegistry),
-            address(0),
             address(factory),
             address(voter),
             address(WETH)

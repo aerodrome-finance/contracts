@@ -4,7 +4,6 @@ pragma solidity 0.8.19;
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {IPool} from "./interfaces/IPool.sol";
 import {IPoolFactory} from "./interfaces/factories/IPoolFactory.sol";
-import {IPairFactoryV1} from "./interfaces/v1/IPairFactoryV1.sol";
 import {IRouter} from "./interfaces/IRouter.sol";
 import {IVoter} from "./interfaces/IVoter.sol";
 import {IGauge} from "./interfaces/IGauge.sol";
@@ -19,14 +18,11 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 /// @title Velodrome V2 Router
 /// @author velodrome.finance, @pegahcarter
 /// @notice Router allows routes through any pools created by any factory adhering to univ2 interface.
-/// @dev Zapping and swapping support both v1 and v2. Adding liquidity supports v2 only.
 contract Router is IRouter, ERC2771Context {
     using SafeERC20 for IERC20;
 
     /// @inheritdoc IRouter
     address public immutable factoryRegistry;
-    /// @inheritdoc IRouter
-    address public immutable v1Factory;
     /// @inheritdoc IRouter
     address public immutable defaultFactory;
     /// @inheritdoc IRouter
@@ -49,13 +45,11 @@ contract Router is IRouter, ERC2771Context {
     constructor(
         address _forwarder,
         address _factoryRegistry,
-        address _v1Factory,
         address _factory,
         address _voter,
         address _weth
     ) ERC2771Context(_forwarder) {
         factoryRegistry = _factoryRegistry;
-        v1Factory = _v1Factory;
         defaultFactory = _factory;
         voter = _voter;
         weth = IWETH(_weth);
@@ -73,51 +67,14 @@ contract Router is IRouter, ERC2771Context {
     }
 
     /// @inheritdoc IRouter
-    function pairFor(
-        address tokenA,
-        address tokenB,
-        bool stable,
-        address _factory
-    ) external view returns (address pool) {
-        return poolFor(tokenA, tokenB, stable, _factory);
-    }
-
-    /// @inheritdoc IRouter
     function poolFor(address tokenA, address tokenB, bool stable, address _factory) public view returns (address pool) {
         address _defaultFactory = defaultFactory;
         address factory = _factory == address(0) ? _defaultFactory : _factory;
         if (!IFactoryRegistry(factoryRegistry).isPoolFactoryApproved(factory)) revert PoolFactoryDoesNotExist();
-        address velo = IPoolFactory(_defaultFactory).velo();
-        address veloV2 = IPoolFactory(_defaultFactory).veloV2();
-        // Disable routing v2 -> v1 velo
-        if ((tokenA == veloV2) && (tokenB == velo)) revert ConversionFromV2ToV1VeloProhibited();
-        // Override for sink converter
-        if ((tokenA == velo) && (tokenB == veloV2)) {
-            return IPoolFactory(_defaultFactory).sinkConverter();
-        }
 
         (address token0, address token1) = sortTokens(tokenA, tokenB);
-        if (factory != v1Factory) {
-            bytes32 salt = keccak256(abi.encodePacked(token0, token1, stable));
-            pool = Clones.predictDeterministicAddress(IPoolFactory(factory).implementation(), salt, factory);
-        } else {
-            // backwards compatible with v1
-            bytes32 pairCodeHash = IPairFactoryV1(factory).pairCodeHash();
-            pool = address(
-                uint160(
-                    uint256(
-                        keccak256(
-                            abi.encodePacked(
-                                hex"ff",
-                                factory,
-                                keccak256(abi.encodePacked(token0, token1, stable)),
-                                pairCodeHash // init code hash
-                            )
-                        )
-                    )
-                )
-            );
-        }
+        bytes32 salt = keccak256(abi.encodePacked(token0, token1, stable));
+        pool = Clones.predictDeterministicAddress(IPoolFactory(factory).implementation(), salt, factory);
     }
 
     /// @dev given some amount of an asset and pool reserves, returns an equivalent amount of the other asset
@@ -153,7 +110,7 @@ contract Router is IRouter, ERC2771Context {
         for (uint256 i = 0; i < _length; i++) {
             address factory = routes[i].factory == address(0) ? defaultFactory : routes[i].factory; // default to v2
             address pool = poolFor(routes[i].from, routes[i].to, routes[i].stable, factory);
-            if (IPoolFactory(factory).isPair(pool)) {
+            if (IPoolFactory(factory).isPool(pool)) {
                 amounts[i + 1] = IPool(pool).getAmountOut(amounts[i], routes[i].from);
             }
         }
@@ -168,7 +125,7 @@ contract Router is IRouter, ERC2771Context {
         uint256 amountADesired,
         uint256 amountBDesired
     ) public view returns (uint256 amountA, uint256 amountB, uint256 liquidity) {
-        address _pool = IPoolFactory(_factory).getPair(tokenA, tokenB, stable);
+        address _pool = IPoolFactory(_factory).getPool(tokenA, tokenB, stable);
         (uint256 reserveA, uint256 reserveB) = (0, 0);
         uint256 _totalSupply = 0;
         if (_pool != address(0)) {
@@ -199,7 +156,7 @@ contract Router is IRouter, ERC2771Context {
         address _factory,
         uint256 liquidity
     ) public view returns (uint256 amountA, uint256 amountB) {
-        address _pool = IPoolFactory(_factory).getPair(tokenA, tokenB, stable);
+        address _pool = IPoolFactory(_factory).getPool(tokenA, tokenB, stable);
 
         if (_pool == address(0)) {
             return (0, 0);
@@ -224,9 +181,9 @@ contract Router is IRouter, ERC2771Context {
         if (amountADesired < amountAMin) revert InsufficientAmountADesired();
         if (amountBDesired < amountBMin) revert InsufficientAmountBDesired();
         // create the pool if it doesn't exist yet
-        address _pool = IPoolFactory(defaultFactory).getPair(tokenA, tokenB, stable);
+        address _pool = IPoolFactory(defaultFactory).getPool(tokenA, tokenB, stable);
         if (_pool == address(0)) {
-            _pool = IPoolFactory(defaultFactory).createPair(tokenA, tokenB, stable);
+            _pool = IPoolFactory(defaultFactory).createPool(tokenA, tokenB, stable);
         }
         (uint256 reserveA, uint256 reserveB) = getReserves(tokenA, tokenB, stable, defaultFactory);
         if (reserveA == 0 && reserveB == 0) {

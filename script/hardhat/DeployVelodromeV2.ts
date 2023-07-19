@@ -16,12 +16,6 @@ import {
   Voter,
   VeArtProxy,
   VotingEscrow,
-  SinkManagerFacilitator,
-  SinkManager,
-  SinkDrain,
-  SinkConverter,
-  IVoterV1,
-  IVotingEscrowV1,
   IERC20,
   VeloForwarder,
 } from "../../artifacts/types";
@@ -33,36 +27,22 @@ interface VelodromeV2Output {
   factoryRegistry: string;
   forwarder: string;
   gaugeFactory: string;
-  gaugeSinkDrain: string;
   managedRewardsFactory: string;
   minter: string;
   poolFactory: string;
   router: string;
-  sinkConverter: string;
-  sinkDrain: string;
-  sinkManager: string;
-  sinkManagerFacilitatorImplementation: string;
   VELO: string;
   voter: string;
   votingEscrow: string;
   votingRewardsFactory: string;
-  ownedTokenId: string;
 }
 
 async function main() {
   // ====== start _deploySetupBefore() ======
-  const vVoter = await getContractAt<IVoterV1>(
-    "IVoterV1",
-    jsonConstants.v1.Voter
-  );
-  const sinkDrainAddr = ""; // TODO: populate prior to running
-  const v1Factory = jsonConstants.v1.Factory;
-  const gaugeSinkDrainAddr = await vVoter.gauges(sinkDrainAddr);
   const ONE = "1000000000000000000";
 
   const VELO = await deploy<Velo>("Velo");
   jsonConstants.whitelistTokens.push(VELO.address);
-
   // ====== end _deploySetupBefore() ======
 
   // ====== start _coreSetup() ======
@@ -95,11 +75,6 @@ async function main() {
     votingRewardsFactory.address,
     gaugeFactory.address,
     managedRewardsFactory.address
-  );
-  await factoryRegistry.approve(
-    jsonConstants.v1.Factory,
-    votingRewardsFactory.address,
-    gaugeFactory.address
   );
   // ====== end deployFactories() ======
 
@@ -145,8 +120,7 @@ async function main() {
     undefined,
     forwarder.address,
     escrow.address,
-    factoryRegistry.address,
-    v1Factory
+    factoryRegistry.address
   );
 
   await escrow.setVoterAndDistributor(voter.address, distributor.address);
@@ -156,7 +130,6 @@ async function main() {
     undefined,
     forwarder.address,
     factoryRegistry.address,
-    v1Factory,
     poolFactory.address,
     voter.address,
     jsonConstants.WETH
@@ -175,57 +148,7 @@ async function main() {
   await voter.initialize(jsonConstants.whitelistTokens, minter.address);
   // ====== end _coreSetup() ======
 
-  // ====== start _sinkSetup() ======
-  const facilitatorImplementation = await deploy<SinkManagerFacilitator>(
-    "SinkManagerFacilitator"
-  );
-
-  const sinkManager = await deploy<SinkManager>(
-    "SinkManager",
-    undefined,
-    forwarder.address,
-    sinkDrainAddr,
-    facilitatorImplementation.address,
-    jsonConstants.v1.Voter,
-    jsonConstants.v1.VELO,
-    VELO.address,
-    jsonConstants.v1.VotingEscrow,
-    escrow.address,
-    jsonConstants.v1.Distributor
-  );
-
-  const sinkConverter = await deploy<SinkConverter>(
-    "SinkConverter",
-    undefined,
-    sinkManager.address
-  );
-  await poolFactory.setSinkConverter(
-    sinkConverter.address,
-    jsonConstants.v1.VELO,
-    VELO.address
-  );
-  await VELO.setSinkManager(sinkManager.address);
-  // ====== end _sinkSetup() ======
-
   // ====== start _deploySetupAfter() ======
-  const vVELO = await getContractAt<IERC20>("IERC20", jsonConstants.v1.VELO);
-  await vVELO.approve(jsonConstants.v1.VotingEscrow, ONE);
-  const vEscrow = await getContractAt<IVotingEscrowV1>(
-    "IVotingEscrowV1",
-    jsonConstants.v1.VotingEscrow
-  );
-  const ownedTokenId = await vEscrow.callStatic.create_lock_for(
-    ONE,
-    "126144000",
-    sinkManager.address
-  );
-  await vEscrow.create_lock_for(ONE, "126144000", sinkManager.address);
-  await sinkManager.setOwnedTokenId(ownedTokenId);
-  const sinkDrain = await getContractAt<SinkDrain>("SinkDrain", sinkDrainAddr);
-  await sinkDrain.mint(sinkManager.address);
-  await sinkManager.setupSinkDrain(gaugeSinkDrainAddr, { gasLimit: 5000000 });
-  await sinkManager.renounceOwnership({ gasLimit: 5000000 });
-
   await escrow.setTeam(jsonConstants.team);
   await poolFactory.setPauser(jsonConstants.team);
   await voter.setEmergencyCouncil(jsonConstants.team);
@@ -250,20 +173,14 @@ async function main() {
     factoryRegistry: factoryRegistry.address,
     forwarder: forwarder.address,
     gaugeFactory: gaugeFactory.address,
-    gaugeSinkDrain: gaugeSinkDrainAddr,
     managedRewardsFactory: managedRewardsFactory.address,
     minter: minter.address,
     poolFactory: poolFactory.address,
     router: router.address,
-    sinkConverter: sinkConverter.address,
-    sinkDrain: sinkDrainAddr,
-    sinkManager: sinkManager.address,
-    sinkManagerFacilitatorImplementation: facilitatorImplementation.address,
     VELO: VELO.address,
     voter: voter.address,
     votingEscrow: escrow.address,
     votingRewardsFactory: votingRewardsFactory.address,
-    ownedTokenId: ownedTokenId.toString(),
   };
 
   try {

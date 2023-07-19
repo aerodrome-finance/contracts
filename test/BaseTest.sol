@@ -62,10 +62,9 @@ abstract contract BaseTest is Base, TestOwner {
     string OPTIMISM_RPC_URL = vm.envString("OPTIMISM_RPC_URL");
     /// @dev optionally set FORK_BLOCK_NUMBER in .env / test set up for faster tests / fixed tests
     uint256 BLOCK_NUMBER = vm.envOr("FORK_BLOCK_NUMBER", uint256(0));
-    string CONSTANTS_FILENAME = vm.envString("CONSTANTS_FILENAME");
 
     /// @dev Default set up of local v2 deployment run if Deployment.DEFAULT selected
-    ///      Mainnet fork + v2 deployment + sink deployed if Deployment.FORK selected
+    ///      Mainnet fork + v2 deployment if Deployment.FORK selected
     ///      Only _setUp function run if Deployment.CUSTOM selected
     ///      _setUp can be overriden to provide additional configuration if desired
     ///      To set up mainnet forks from a certain block (e.g. to fix venft balances for testing)
@@ -90,10 +89,8 @@ abstract contract BaseTest is Base, TestOwner {
     }
 
     function _forkSetup() public {
-        _forkSetupBefore(CONSTANTS_FILENAME);
+        _forkSetupBefore();
         _testSetup();
-        _sinkSetup();
-        _forkSetupAfter();
     }
 
     function _testSetupBefore() public {
@@ -120,9 +117,6 @@ abstract contract BaseTest is Base, TestOwner {
         tokens.push(address(WETH));
 
         allowedManager = address(owner);
-
-        // initial setup of sinkDrain - governance would add as a gauge
-        sinkDrain = new SinkDrain();
     }
 
     function _testSetupAfter() public {
@@ -198,52 +192,13 @@ abstract contract BaseTest is Base, TestOwner {
         vm.label(address(bribeVotingReward3), "Bribe Voting Reward 3");
     }
 
-    function _forkSetupBefore(string memory constantsFilename) public {
+    function _forkSetupBefore() public {
         if (BLOCK_NUMBER != 0) {
             optimismFork = vm.createFork(OPTIMISM_RPC_URL, BLOCK_NUMBER);
         } else {
             optimismFork = vm.createFork(OPTIMISM_RPC_URL);
         }
         vm.selectFork(optimismFork);
-
-        _loadV1(constantsFilename);
-    }
-
-    function _forkSetupAfter() public {
-        // mint v1 velo so we can create v1 nfts for testing
-        uint256[] memory amounts = new uint256[](5);
-        amounts[0] = 1e25;
-        amounts[1] = 1e25;
-        amounts[2] = 1e25;
-        amounts[3] = 1e25;
-        amounts[4] = 1e25;
-        mintToken(address(vVELO), owners, amounts);
-
-        // create v1 nft as the ownedTokenId for SinkManager
-        vVELO.approve(address(vEscrow), TOKEN_1 / 4);
-        ownedTokenId = vEscrow.create_lock_for(TOKEN_1 / 4, 4 * 365 * 86400, address(sinkManager));
-
-        // Set ownedTokenId
-        sinkManager.setOwnedTokenId(ownedTokenId);
-
-        // Set SinkDrain
-        sinkDrain.mint(address(sinkManager));
-        assertEq(sinkDrain.totalSupply(), sinkDrain.balanceOf(address(sinkManager)));
-        vm.prank(vVoter.governor());
-        gaugeSinkDrain = IGaugeV1(vVoter.createGauge(address(sinkDrain)));
-        sinkManager.setupSinkDrain(address(gaugeSinkDrain));
-
-        vm.label(address(vVELO), "V1 Velo");
-        vm.label(address(vEscrow), "V1 Voting Escrow");
-        vm.label(address(vVoter), "V1 Voter");
-        vm.label(address(vFactory), "V1 Pair Factory");
-        vm.label(address(vGov), "V1 Velo Governor");
-        vm.label(address(vDistributor), "V1 Rewards vDistributor");
-        vm.label(address(vMinter), "V1 Minter");
-        vm.label(address(gaugeSinkDrain), "Gauge Sink Drain");
-        vm.label(address(sinkManager), "Sink Manager");
-        vm.label(address(sinkDrain), "Sink Drain");
-        vm.label(address(sinkConverter), "Sink Converter");
     }
 
     function deployOwners() public {

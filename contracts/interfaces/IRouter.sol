@@ -11,7 +11,6 @@ interface IRouter {
         address factory;
     }
 
-    error ConversionFromV2ToV1VeloProhibited();
     error ETHTransferFailed();
     error Expired();
     error InsufficientAmount();
@@ -35,9 +34,6 @@ interface IRouter {
 
     /// @notice Address of FactoryRegistry.sol
     function factoryRegistry() external view returns (address);
-
-    /// @notice Address of Velodrome v1 PairFactory.sol
-    function v1Factory() external view returns (address);
 
     /// @notice Address of Velodrome v2 PoolFactory.sol
     function defaultFactory() external view returns (address);
@@ -87,14 +83,6 @@ interface IRouter {
     /// @param stable   True if pool is stable, false if volatile
     /// @param _factory Address of factory which created the pool
     function poolFor(
-        address tokenA,
-        address tokenB,
-        bool stable,
-        address _factory
-    ) external view returns (address pool);
-
-    /// @notice Wraps around poolFor(tokenA,tokenB,stable,_factory) for backwards compatibility to Velodrome v1
-    function pairFor(
         address tokenA,
         address tokenB,
         bool stable,

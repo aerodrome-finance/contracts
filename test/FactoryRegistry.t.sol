@@ -36,7 +36,6 @@ contract FactoryRegistryTest is BaseTest {
         router2 = new Router(
             address(forwarder),
             address(factoryRegistry2),
-            address(0),
             address(factory2),
             address(voter),
             address(WETH)

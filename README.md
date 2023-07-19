@@ -41,15 +41,6 @@ See `SPECIFICATION.md` for more detail.
 | `LockedManagedReward.sol` | Handles "locked" rewards (i.e. Velo rewards / rebases that are compounded) for managed NFTs. Rewards are not distributed and only returned to `VotingEscrow.sol` when the user withdraws from the managed NFT. | 
 | `FreeManagedReward.sol` | Handles "free" (i.e. unlocked) rewards for managed NFTs. Any rewards earned by a managed NFT that a manager passes on will be distributed to the users that deposited into the managed NFT. | 
 
-### V1 Migration and supporting contracts
-
-| Filename | Description |
-| --- | --- |
-| `v1/sink/`||
-| `SinkManager.sol` | Used to capture V1 protocol tokens (via conversion of V1 NFTs to V2 NFTs or V1 Velo to V2 Velo). |
-| `SinkDrain.sol` | A "fake" pool used solely for the purpose of collecting gauge emissions from V1. |
-| `SinkConverter.sol` | A "fake" pool used solely to enable routers swapping from v1 VELO to v2 VELO. |
-
 ### Governance contracts
 
 | Filename | Description |
@@ -72,7 +63,7 @@ forge test
 
 ## Optimism Mainnet Fork Tests
 
-In order to run mainnet fork tests against optimism, inherit `BaseTest` in `BaseTest.sol` in your new class and set the `deploymentType` variable to `Deployment.FORK`. See `SinkManager.t.sol` for examples. The `OPTIMISM_RPC_URL` field must be set in `.env`. Optionally, `BLOCK_NUMBER` can be set in the `.env` file or in the test file if you wish to test against a consistent fork state (this will make tests faster).
+In order to run mainnet fork tests against optimism, inherit `BaseTest` in `BaseTest.sol` in your new class and set the `deploymentType` variable to `Deployment.FORK`. The `OPTIMISM_RPC_URL` field must be set in `.env`. Optionally, `BLOCK_NUMBER` can be set in the `.env` file or in the test file if you wish to test against a consistent fork state (this will make tests faster).
 
 
 ## Lint
@@ -107,9 +98,6 @@ Velodrome has a live bug bounty hosted on ([Immunefi](https://immunefi.com/bount
 | Minter               | [0x6dc9E1C04eE59ed3531d73a72256C0da46D10982](https://optimistic.etherscan.io/address/0x6dc9E1C04eE59ed3531d73a72256C0da46D10982#code) |
 | PoolFactory               | [0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a](https://optimistic.etherscan.io/address/0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a#code) |
 | Router               | [0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858](https://optimistic.etherscan.io/address/0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858#code) |
-| SinkConverter               | [0x585Af0b397AC42dbeF7f18395426BF878634f18D](https://optimistic.etherscan.io/address/0x585Af0b397AC42dbeF7f18395426BF878634f18D#code) |
-| SinkManager               | [0x5aeE5F0E6C2055EbD776DB25F48f6c9A68ABcdaE](https://optimistic.etherscan.io/address/0x5aeE5F0E6C2055EbD776DB25F48f6c9A68ABcdaE#code) |
-| SinkManagerFacilitatorImplementation               | [0x45fF00822E8235b86Cb605ac8295c14628cE78a4](https://optimistic.etherscan.io/address/0x45fF00822E8235b86Cb605ac8295c14628cE78a4#code) |
 | VELO               | [0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db](https://optimistic.etherscan.io/address/0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db#code) |
 | Voter               | [0x41C914ee0c7E1A5edCD0295623e6dC557B5aBf3C](https://optimistic.etherscan.io/address/0x41C914ee0c7E1A5edCD0295623e6dC557B5aBf3C#code) |
 | VotingEscrow               | [0xFAf8FD17D9840595845582fCB047DF13f006787d](https://optimistic.etherscan.io/address/0xFAf8FD17D9840595845582fCB047DF13f006787d#code) |

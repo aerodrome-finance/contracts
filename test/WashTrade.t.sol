@@ -51,11 +51,10 @@ contract WashTradeTest is BaseTest {
         deployFactories();
         factory.setFee(true, 1);
         factory.setFee(false, 1);
-        voter = new Voter(address(forwarder), address(escrow), address(factoryRegistry), address(vFactory));
+        voter = new Voter(address(forwarder), address(escrow), address(factoryRegistry));
         router = new Router(
             address(forwarder),
             address(factoryRegistry),
-            address(0),
             address(factory),
             address(voter),
             address(WETH)
@@ -123,7 +122,7 @@ contract WashTradeTest is BaseTest {
     function deployVoter() public {
         routerAddLiquidity();
 
-        voter = new Voter(address(forwarder), address(escrow), address(factoryRegistry), address(vFactory));
+        voter = new Voter(address(forwarder), address(escrow), address(factoryRegistry));
         address[] memory tokens = new address[](4);
         tokens[0] = address(USDC);
         tokens[1] = address(FRAX);

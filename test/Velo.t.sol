@@ -22,29 +22,9 @@ contract VeloTest is BaseTest {
         assertEq(token.minter(), address(owner3));
     }
 
-    function testCannotSetSinkManagerIfNotOwner() public {
+    function testCannotMintIfNotMinter() public {
         vm.prank(address(owner2));
-        vm.expectRevert(IVelo.NotOwner.selector);
-        token.setSinkManager(address(owner3));
-    }
-
-    function testCannotSetSinkManagerIfAlreadySet() public {
-        token.setSinkManager(address(owner2));
-        assertEq(token.sinkManager(), address(owner2));
-
-        vm.expectRevert(IVelo.SinkManagerAlreadySet.selector);
-        token.setSinkManager(address(owner2));
-    }
-
-    function testSetSinkManager() public {
-        token.setSinkManager(address(owner2));
-
-        assertEq(token.sinkManager(), address(owner2));
-    }
-
-    function testCannotMintIfNotMinterOrSinkManager() public {
-        vm.prank(address(owner2));
-        vm.expectRevert(IVelo.NotMinterOrSinkManager.selector);
+        vm.expectRevert(IVelo.NotMinter.selector);
         token.mint(address(owner2), TOKEN_1);
     }
 }

@@ -69,9 +69,6 @@ interface IVoter {
     /// @notice Factory registry for valid pool / gauge / rewards factories
     function factoryRegistry() external view returns (address);
 
-    /// @notice V1 factory
-    function v1Factory() external view returns (address);
-
     /// @notice Address of Minter.sol
     function minter() external view returns (address);
 
@@ -239,7 +236,6 @@ interface IVoter {
 
     /// @notice Create a new gauge (unpermissioned).
     /// @dev Governor can create a new gauge for a pool with any address.
-    /// @dev V1 gauges can only be created by governor.
     /// @param _poolFactory .
     /// @param _pool .
     function createGauge(address _poolFactory, address _pool) external returns (address);
