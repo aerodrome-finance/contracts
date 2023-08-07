@@ -62,10 +62,10 @@ contract PoolFactoryTest is BaseTest {
 
     function testCannotSetFeeAboveMax() public {
         vm.expectRevert(IPoolFactory.FeeTooHigh.selector);
-        factory.setFee(true, 101); // 101 bps = 1.01%
+        factory.setFee(true, 301); // 301 bps = 3.01%
 
         vm.expectRevert(IPoolFactory.FeeTooHigh.selector);
-        factory.setCustomFee(address(pool), 101); // 101 bps = 1.01%
+        factory.setCustomFee(address(pool), 301); // 301 bps = 3.01%
     }
 
     function testCannotSetZeroFee() public {

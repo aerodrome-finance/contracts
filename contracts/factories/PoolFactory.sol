@@ -13,7 +13,7 @@ contract PoolFactory is IPoolFactory {
 
     uint256 public stableFee;
     uint256 public volatileFee;
-    uint256 public constant MAX_FEE = 100; // 1%
+    uint256 public constant MAX_FEE = 300; // 3%
     // Override to indicate there is custom 0% fee - as a 0 value in the customFee mapping indicates
     // that no custom fee rate has been set
     uint256 public constant ZERO_FEE_INDICATOR = 420;

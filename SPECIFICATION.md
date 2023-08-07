@@ -40,6 +40,12 @@ is not critical. This is mentioned as a courtesy to integrators that may depend
 
 Pool helper contract that stores pool trading fees to keep them separate from the liquidity pool. 
 
+### PoolFactory
+
+Responsible for pool creation and management. It facilitates creating and fetching liquidity pools for pairs of tokens, specifying whether they're stable or volatile. It additionally provides pool configuration using 3 roles:
+- Pauser: Switch the pool's pause state (enabling/disabling pool swaps)
+- FeeManager: Can set a custom fee per pool, with a maximum fee of 3%
+
 ### Router
 
 Standard UniswapV2-like Router interface. Supports multi-pool swaps, lp deposits 
