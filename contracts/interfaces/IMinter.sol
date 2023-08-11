@@ -7,12 +7,17 @@ import {IVotingEscrow} from "./IVotingEscrow.sol";
 import {IRewardsDistributor} from "./IRewardsDistributor.sol";
 
 interface IMinter {
+    error NotTeam();
+    error RateTooHigh();
+    error ZeroAddress();
     error AlreadyNudged();
+    error NotPendingTeam();
     error NotEpochGovernor();
     error TailEmissionsInactive();
 
     event Mint(address indexed _sender, uint256 _weekly, uint256 _circulating_supply, bool indexed _tail);
     event Nudge(uint256 indexed _period, uint256 _oldRate, uint256 _newRate);
+    event AcceptTeam(address indexed _newTeam);
 
     /// @notice Interface of Velo.sol
     function velo() external view returns (IVelo);
@@ -47,6 +52,12 @@ interface IMinter {
     /// @notice When emissions fall below this amount, begin tail emissions
     function TAIL_START() external view returns (uint256);
 
+    /// @notice Maximum team percentage in basis points
+    function MAXIMUM_TEAM_RATE() external view returns (uint256);
+
+    /// @notice Current team percentage in basis points
+    function teamRate() external view returns (uint256);
+
     /// @notice Tail emissions rate in basis points
     function tailEmissionRate() external view returns (uint256);
 
@@ -60,6 +71,24 @@ interface IMinter {
     /// @param _activePeriod Timestamp of start of epoch
     /// @return True if proposal has been executed, else false
     function proposals(uint256 _activePeriod) external view returns (bool);
+
+    /// @notice Current team address in charge of emissions
+    function team() external view returns (address);
+
+    /// @notice Possible team address pending approval of current team
+    function pendingTeam() external view returns (address);
+
+    /// @notice Creates a request to change the current team's address
+    /// @param _team Address of the new team to be chosen
+    function setTeam(address _team) external;
+
+    /// @notice Accepts the request to replace the current team's address
+    ///         with the requested one, present on variable pendingTeam
+    function acceptTeam() external;
+
+    /// @notice Creates a request to change the current team's percentage
+    /// @param _rate New team rate to be set in basis points
+    function setTeamRate(uint256 _rate) external;
 
     /// @notice Allows epoch governor to modify the tail emission rate by at most 1 basis point
     ///         per epoch to a maximum of 100 basis points or to a minimum of 1 basis point.

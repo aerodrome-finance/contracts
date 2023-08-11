@@ -39,6 +39,10 @@ contract Minter is IMinter {
     /// @inheritdoc IMinter
     uint256 public constant TAIL_START = 6_000_000 * 1e18;
     /// @inheritdoc IMinter
+    uint256 public constant MAXIMUM_TEAM_RATE = 500;
+    /// @inheritdoc IMinter
+    uint256 public teamRate = 500; // team emissions start at 5%
+    /// @inheritdoc IMinter
     uint256 public tailEmissionRate = 30;
     /// @inheritdoc IMinter
     uint256 public weekly = 15_000_000 * 1e18;
@@ -46,6 +50,10 @@ contract Minter is IMinter {
     uint256 public activePeriod;
     /// @inheritdoc IMinter
     mapping(uint256 => bool) public proposals;
+    /// @inheritdoc IMinter
+    address public team;
+    /// @inheritdoc IMinter
+    address public pendingTeam;
 
     constructor(
         address _voter, // the voting & distribution system
@@ -55,8 +63,31 @@ contract Minter is IMinter {
         velo = IVelo(IVotingEscrow(_ve).token());
         voter = IVoter(_voter);
         ve = IVotingEscrow(_ve);
+        team = msg.sender;
         rewardsDistributor = IRewardsDistributor(_rewardsDistributor);
         activePeriod = ((block.timestamp) / WEEK) * WEEK; // allow emissions this coming epoch
+    }
+
+    /// @inheritdoc IMinter
+    function setTeam(address _team) external {
+        if (msg.sender != team) revert NotTeam();
+        if (_team == address(0)) revert ZeroAddress();
+        pendingTeam = _team;
+    }
+
+    /// @inheritdoc IMinter
+    function acceptTeam() external {
+        if (msg.sender != pendingTeam) revert NotPendingTeam();
+        team = pendingTeam;
+        delete pendingTeam;
+        emit AcceptTeam(team);
+    }
+
+    /// @inheritdoc IMinter
+    function setTeamRate(uint256 _rate) external {
+        if (msg.sender != team) revert NotTeam();
+        if (_rate > MAXIMUM_TEAM_RATE) revert RateTooHigh();
+        teamRate = _rate;
     }
 
     /// @inheritdoc IMinter
@@ -109,12 +140,17 @@ contract Minter is IMinter {
             }
 
             uint256 _growth = calculateGrowth(_emission);
-            uint256 _required = _growth + _emission;
+
+            uint256 _rate = teamRate;
+            uint256 _teamEmissions = (_rate * (_growth + _weekly)) / (MAX_BPS - _rate);
+
+            uint256 _required = _growth + _emission + _teamEmissions;
             uint256 _balanceOf = velo.balanceOf(address(this));
             if (_balanceOf < _required) {
                 velo.mint(address(this), _required - _balanceOf);
             }
 
+            velo.safeTransfer(address(team), _teamEmissions);
             velo.safeTransfer(address(rewardsDistributor), _growth);
             rewardsDistributor.checkpointToken(); // checkpoint token balance that was just minted in rewards distributor
 

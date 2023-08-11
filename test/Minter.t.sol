@@ -7,6 +7,7 @@ contract MinterTest is BaseTest {
     using stdStorage for StdStorage;
     uint256 tokenId;
 
+    event AcceptTeam(address indexed _newTeam);
     event Nudge(uint256 indexed _period, uint256 _oldRate, uint256 _newRate);
 
     function _setUp() public override {
@@ -33,6 +34,10 @@ contract MinterTest is BaseTest {
         assertEq(minter.weekly(), 15_000_000 * 1e18);
         assertEq(minter.tailEmissionRate(), 30); // .3%
         assertEq(minter.activePeriod(), 604800);
+        assertEq(minter.team(), address(owner));
+        assertEq(minter.teamRate(), 500); // 5%
+        assertEq(minter.MAXIMUM_TEAM_RATE(), 500); // 5%
+        assertEq(minter.pendingTeam(), address(0));
     }
 
     function testTailEmissionFlipsWhenWeeklyEmissionDecaysBelowTailStart() public {
@@ -50,10 +55,10 @@ contract MinterTest is BaseTest {
         voter.distribute(0, voter.length());
 
         skipToNextEpoch(1);
-        // totalSupply ~= 56_010_270 * 1e18
-        // expected mint = totalSupply * .3% ~= 168_030
+        // totalSupply ~= 56_323_436 * 1e18
+        // expected mint = totalSupply * .3% ~= 168_970
         minter.updatePeriod();
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 168_030 * 1e18, TOKEN_1);
+        assertApproxEqAbs(VELO.balanceOf(address(voter)), 168_970 * 1e18, TOKEN_1);
         assertLt(minter.weekly(), 6_000_000 * 1e18);
     }
 
@@ -226,7 +231,7 @@ contract MinterTest is BaseTest {
         post = VELO.balanceOf(address(voter));
 
         // check rebase accumulated
-        assertEq(distributor.claimable(1), 82);
+        assertEq(distributor.claimable(1), 81);
         distributor.claim(1);
         assertEq(distributor.claimable(1), 0);
 
@@ -261,5 +266,72 @@ contract MinterTest is BaseTest {
         vm.roll(block.number + 1);
         minter.updatePeriod();
         distributor.claim(1);
+    }
+
+    function testSetTeam() public {
+        address team = minter.team();
+        address newTeam = address(owner2);
+
+        assertEq(minter.pendingTeam(), address(0));
+        vm.prank(team);
+        minter.setTeam(newTeam);
+        assertEq(minter.team(), team);
+        assertEq(minter.pendingTeam(), newTeam);
+    }
+
+    function testAcceptTeam() public {
+        address newTeam = address(owner2);
+        stdstore.target(address(minter)).sig("pendingTeam()").checked_write(newTeam);
+
+        vm.prank(newTeam);
+        vm.expectEmit(true, false, false, false, address(minter));
+        emit AcceptTeam(newTeam);
+        minter.acceptTeam();
+        assertEq(minter.pendingTeam(), address(0));
+        assertEq(minter.team(), newTeam);
+    }
+
+    function testSetRate() public {
+        uint256 oldRate = 500;
+        uint256 newRate = 400;
+        assertEq(minter.teamRate(), oldRate);
+
+        vm.prank(minter.team());
+        minter.setTeamRate(newRate);
+        assertEq(minter.teamRate(), newRate);
+    }
+
+    function testCannotSetTeamIfNotTeam() public {
+        vm.prank(address(owner2));
+        vm.expectRevert(IMinter.NotTeam.selector);
+        minter.setTeam(address(owner2));
+    }
+
+    function testCannotSetTeamIfZeroAddress() public {
+        vm.prank(address(owner));
+        vm.expectRevert(IMinter.ZeroAddress.selector);
+        minter.setTeam(address(0));
+    }
+
+    function testCannotAcceptTeamIfNotPending() public {
+        vm.prank(address(owner));
+        minter.setTeam(address(owner2));
+
+        vm.prank(address(owner3));
+        vm.expectRevert(IMinter.NotPendingTeam.selector);
+        minter.acceptTeam();
+    }
+
+    function testCannotSetRateIfNotTeam() public {
+        vm.prank(address(owner2));
+        vm.expectRevert(IMinter.NotTeam.selector);
+        minter.setTeamRate(400);
+    }
+
+    function testCannotSetRateTooHigh() public {
+        uint256 maxRate = minter.MAXIMUM_TEAM_RATE();
+        vm.prank(address(owner));
+        vm.expectRevert(IMinter.RateTooHigh.selector);
+        minter.setTeamRate(maxRate + 1);
     }
 }
