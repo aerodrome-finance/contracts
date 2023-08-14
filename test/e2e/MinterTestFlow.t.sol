@@ -107,9 +107,9 @@ contract MinterTestFlow is ExtendedBaseTest {
         skipToNextEpoch(1);
 
         minter.updatePeriod();
-        /// total velo supply ~1005457263, tail emissions ~= .29% of total supply
-        /// 1005457263 ~= 50_000_000 initial supply + emissions until now
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 3_006_413 * TOKEN_1, TOKEN_1);
+        /// total velo supply ~1528972128, tail emissions ~= .29% of total supply
+        /// 1528972128 ~= 50_000_000 initial supply + emissions until now
+        assertApproxEqAbs(VELO.balanceOf(address(voter)), 4_434_019 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
 
         assertEq(minter.tailEmissionRate(), 30);
@@ -142,8 +142,8 @@ contract MinterTestFlow is ExtendedBaseTest {
         assertEq(minter.tailEmissionRate(), 31);
 
         minter.updatePeriod();
-        /// total velo supply ~1008887347, tail emissions .30% of total supply
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 3_116_917 * TOKEN_1, TOKEN_1);
+        /// total velo supply ~1534589820, tail emissions .30% of total supply
+        assertApproxEqAbs(VELO.balanceOf(address(voter)), 4_603_769 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
 
         description = Strings.toString(block.timestamp);
@@ -165,8 +165,8 @@ contract MinterTestFlow is ExtendedBaseTest {
         assertEq(minter.tailEmissionRate(), 31);
 
         minter.updatePeriod();
-        /// total velo supply ~1012328065, tail emissions .30% of total supply
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 3_127_550 * TOKEN_1, TOKEN_1);
+        /// total velo supply ~1542173939, tail emissions .30% of total supply
+        assertApproxEqAbs(VELO.balanceOf(address(voter)), 4_626_521 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
 
         /// expect 0 (against vote) to pass
@@ -179,8 +179,8 @@ contract MinterTestFlow is ExtendedBaseTest {
         assertEq(minter.tailEmissionRate(), 30);
 
         minter.updatePeriod();
-        /// total velo supply ~1015678216, tail emissions .29% of total supply
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 3_036_984 * TOKEN_1, TOKEN_1);
+        /// total velo supply ~1551517856, tail emissions .29% of total supply
+        assertApproxEqAbs(VELO.balanceOf(address(voter)), 4_499_401 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
     }
 

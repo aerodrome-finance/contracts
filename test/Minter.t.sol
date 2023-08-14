@@ -55,10 +55,10 @@ contract MinterTest is BaseTest {
         voter.distribute(0, voter.length());
 
         skipToNextEpoch(1);
-        // totalSupply ~= 56_323_436 * 1e18
-        // expected mint = totalSupply * .3% ~= 168_970
+        // totalSupply ~= 59_486_736 * 1e18
+        // expected mint = totalSupply * .3% ~= 178_460
         minter.updatePeriod();
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 168_970 * 1e18, TOKEN_1);
+        assertApproxEqAbs(VELO.balanceOf(address(voter)), 178_460 * 1e18, TOKEN_1);
         assertLt(minter.weekly(), 6_000_000 * 1e18);
     }
 
@@ -218,7 +218,7 @@ contract MinterTest is BaseTest {
         uint256 pre = VELO.balanceOf(address(voter));
         skipToNextEpoch(1);
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 57);
+        assertEq(distributor.claimable(tokenId), 7499987301487620008589577);
         // emissions decay by 1% after one epoch
         uint256 post = VELO.balanceOf(address(voter));
         assertEq(post - pre, (15 * TOKEN_1M));
@@ -231,7 +231,7 @@ contract MinterTest is BaseTest {
         post = VELO.balanceOf(address(voter));
 
         // check rebase accumulated
-        assertEq(distributor.claimable(1), 81);
+        assertEq(distributor.claimable(1), 14924987226402531787980476);
         distributor.claim(1);
         assertEq(distributor.claimable(1), 0);
 

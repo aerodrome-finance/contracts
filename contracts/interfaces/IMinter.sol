@@ -103,7 +103,7 @@ interface IMinter {
     function nudge() external;
 
     /// @notice Calculates rebases according to the formula
-    ///         weekly * (ve.totalSupply / velo.totalSupply) ^ 3 / 2
+    ///         weekly * ((velo.totalsupply - ve.totalSupply) / velo.totalsupply) ^ 2 / 2
     ///         Note that ve.totalSupply is the locked ve supply
     ///         velo.totalSupply is the total ve supply minted
     /// @param _minted Amount of VELO minted this epoch

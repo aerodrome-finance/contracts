@@ -94,7 +94,8 @@ contract Minter is IMinter {
     function calculateGrowth(uint256 _minted) public view returns (uint256 _growth) {
         uint256 _veTotal = ve.totalSupplyAt(activePeriod - 1);
         uint256 _veloTotal = velo.totalSupply();
-        return (((((_minted * _veTotal) / _veloTotal) * _veTotal) / _veloTotal) * _veTotal) / _veloTotal / 2;
+
+        return (((_minted * (_veloTotal - _veTotal)) / _veloTotal) * (_veloTotal - _veTotal)) / _veloTotal / 2;
     }
 
     /// @inheritdoc IMinter
