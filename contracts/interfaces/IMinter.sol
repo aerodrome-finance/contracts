@@ -37,6 +37,9 @@ interface IMinter {
     /// @notice Decay rate of emissions as percentage of `MAX_BPS`
     function WEEKLY_DECAY() external view returns (uint256);
 
+    /// @notice Growth rate of emissions as percentage of `MAX_BPS` in first 14 weeks
+    function WEEKLY_GROWTH() external view returns (uint256);
+
     /// @notice Maximum tail emission rate in basis points.
     function MAXIMUM_TAIL_RATE() external view returns (uint256);
 
@@ -61,11 +64,14 @@ interface IMinter {
     /// @notice Tail emissions rate in basis points
     function tailEmissionRate() external view returns (uint256);
 
-    /// @notice Starting weekly emission of 15M VELO (VELO has 18 decimals)
+    /// @notice Starting weekly emission of 10M VELO (VELO has 18 decimals)
     function weekly() external view returns (uint256);
 
     /// @notice Timestamp of start of epoch that updatePeriod was last called in
-    function activePeriod() external returns (uint256);
+    function activePeriod() external view returns (uint256);
+
+    /// @notice Number of epochs in which updatePeriod was called
+    function epochCount() external view returns (uint256);
 
     /// @dev activePeriod => proposal existing, used to enforce one proposal per epoch
     /// @param _activePeriod Timestamp of start of epoch

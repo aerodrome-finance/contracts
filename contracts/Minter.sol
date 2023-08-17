@@ -29,6 +29,8 @@ contract Minter is IMinter {
     /// @inheritdoc IMinter
     uint256 public constant WEEKLY_DECAY = 9_900;
     /// @inheritdoc IMinter
+    uint256 public constant WEEKLY_GROWTH = 10_300;
+    /// @inheritdoc IMinter
     uint256 public constant MAXIMUM_TAIL_RATE = 100;
     /// @inheritdoc IMinter
     uint256 public constant MINIMUM_TAIL_RATE = 1;
@@ -37,17 +39,19 @@ contract Minter is IMinter {
     /// @inheritdoc IMinter
     uint256 public constant NUDGE = 1;
     /// @inheritdoc IMinter
-    uint256 public constant TAIL_START = 6_000_000 * 1e18;
+    uint256 public constant TAIL_START = 8_969_150 * 1e18;
+    /// @inheritdoc IMinter
+    uint256 public tailEmissionRate = 67;
     /// @inheritdoc IMinter
     uint256 public constant MAXIMUM_TEAM_RATE = 500;
     /// @inheritdoc IMinter
     uint256 public teamRate = 500; // team emissions start at 5%
     /// @inheritdoc IMinter
-    uint256 public tailEmissionRate = 30;
-    /// @inheritdoc IMinter
-    uint256 public weekly = 15_000_000 * 1e18;
+    uint256 public weekly = 10_000_000 * 1e18;
     /// @inheritdoc IMinter
     uint256 public activePeriod;
+    /// @inheritdoc IMinter
+    uint256 public epochCount;
     /// @inheritdoc IMinter
     mapping(uint256 => bool) public proposals;
     /// @inheritdoc IMinter
@@ -125,6 +129,7 @@ contract Minter is IMinter {
     function updatePeriod() external returns (uint256 _period) {
         _period = activePeriod;
         if (block.timestamp >= _period + WEEK) {
+            epochCount++;
             _period = (block.timestamp / WEEK) * WEEK;
             activePeriod = _period;
             uint256 _weekly = weekly;
@@ -136,7 +141,11 @@ contract Minter is IMinter {
                 _emission = (_totalSupply * tailEmissionRate) / MAX_BPS;
             } else {
                 _emission = _weekly;
-                _weekly = (_weekly * WEEKLY_DECAY) / MAX_BPS;
+                if (epochCount < 15) {
+                    _weekly = (_weekly * WEEKLY_GROWTH) / MAX_BPS;
+                } else {
+                    _weekly = (_weekly * WEEKLY_DECAY) / MAX_BPS;
+                }
                 weekly = _weekly;
             }
 

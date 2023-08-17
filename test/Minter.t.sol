@@ -30,36 +30,97 @@ contract MinterTest is BaseTest {
         assertEq(minter.MAXIMUM_TAIL_RATE(), 100); // 1%
         assertEq(minter.MINIMUM_TAIL_RATE(), 1); // .01%
         assertEq(minter.WEEKLY_DECAY(), 9_900);
-        assertEq(minter.TAIL_START(), 6_000_000 * 1e18);
-        assertEq(minter.weekly(), 15_000_000 * 1e18);
-        assertEq(minter.tailEmissionRate(), 30); // .3%
+        assertEq(minter.WEEKLY_GROWTH(), 10_300);
+        assertEq(minter.TAIL_START(), 8_969_150 * 1e18);
+        assertEq(minter.weekly(), 10_000_000 * 1e18);
+        assertEq(minter.tailEmissionRate(), 67); // .67%
         assertEq(minter.activePeriod(), 604800);
         assertEq(minter.team(), address(owner));
         assertEq(minter.teamRate(), 500); // 5%
         assertEq(minter.MAXIMUM_TEAM_RATE(), 500); // 5%
         assertEq(minter.pendingTeam(), address(0));
+        assertEq(minter.epochCount(), 0);
     }
 
-    function testTailEmissionFlipsWhenWeeklyEmissionDecaysBelowTailStart() public {
-        skipToNextEpoch(1);
+    function testWeeklyEmissionGrowsFirst14WeeksThenFlipsAndDecays() public {
+        minter.updatePeriod();
+        assertEq(minter.weekly(), 10 * TOKEN_1M); // 10M
+        assertEq(minter.epochCount(), 0);
 
+        //epoch 1
+        skipToNextEpoch(1);
+        minter.updatePeriod();
+        assertApproxEqAbs(minter.weekly(), 10_300_000 * TOKEN_1, TOKEN_1);
+        assertEq(minter.epochCount(), 1);
+
+        //epoch 2
+        skipToNextEpoch(1);
+        minter.updatePeriod();
+        assertApproxEqAbs(minter.weekly(), 10_609_000 * TOKEN_1, TOKEN_1);
+        assertEq(minter.epochCount(), 2);
+
+        for (uint256 i = 0; i < 10; i++) {
+            skipToNextEpoch(1);
+            minter.updatePeriod();
+        }
+
+        //epoch 13
+        skipToNextEpoch(1);
+        minter.updatePeriod();
+        assertApproxEqAbs(minter.weekly(), 14_685_337 * TOKEN_1, TOKEN_1);
+        assertEq(minter.epochCount(), 13);
+
+        //epoch 14
+        skipToNextEpoch(1);
+        minter.updatePeriod();
+        assertApproxEqAbs(minter.weekly(), 15_125_897 * TOKEN_1, TOKEN_1);
+        assertEq(minter.epochCount(), 14);
+
+        //emissions grow for 14 weeks
+        //in week 15, weekly emission flips and decays
+
+        //epoch 15
+        skipToNextEpoch(1);
+        minter.updatePeriod();
+        assertApproxEqAbs(minter.weekly(), 14_974_638 * TOKEN_1, TOKEN_1);
+        assertEq(minter.epochCount(), 15);
+
+        //epoch 16
+        skipToNextEpoch(1);
+        minter.updatePeriod();
+        assertApproxEqAbs(minter.weekly(), 14_824_892 * TOKEN_1, TOKEN_1);
+        assertEq(minter.epochCount(), 16);
+
+        //epoch 17
+        skipToNextEpoch(1);
+        minter.updatePeriod();
+        assertApproxEqAbs(minter.weekly(), 14_676_643 * TOKEN_1, TOKEN_1);
+        assertEq(minter.epochCount(), 17);
+    }
+
+    function testTailEmissionWhenWeeklyEmissionDecaysBelowTailStart() public {
+        skipToNextEpoch(1);
         assertEq(VELO.balanceOf(address(voter)), 0);
 
-        // 6_010_270 * 1e18 ~= approximate weekly value after 91 epochs
+        // 9_059_747 * 1e18 ~= approximate weekly value after 67 epochs
         // (last epoch prior to tail emissions kicking in)
-        stdstore.target(address(minter)).sig("weekly()").checked_write(6_010_270 * 1e18);
+        uint256 weekly = 9_059_747 * 1e18;
+        stdstore.target(address(minter)).sig("weekly()").checked_write(weekly);
+        stdstore.target(address(minter)).sig("epochCount()").checked_write(67);
 
         skipToNextEpoch(1);
         minter.updatePeriod();
-        assertApproxEqRel(VELO.balanceOf(address(voter)), 6_010_270 * 1e18, 1e12);
+        // epoch threshold for tail start
+        assertApproxEqAbs(minter.weekly(), 8_969_149 * TOKEN_1, TOKEN_1);
+        assertApproxEqRel(VELO.balanceOf(address(voter)), 9_059_747 * TOKEN_1, 1e12);
         voter.distribute(0, voter.length());
 
         skipToNextEpoch(1);
-        // totalSupply ~= 59_486_736 * 1e18
-        // expected mint = totalSupply * .3% ~= 178_460
+        // totalSupply ~= 65_429_708 * 1e18
+        // expected mint = totalSupply * .67% ~= 8_969_149
         minter.updatePeriod();
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 178_460 * 1e18, TOKEN_1);
-        assertLt(minter.weekly(), 6_000_000 * 1e18);
+        assertApproxEqAbs(VELO.balanceOf(address(voter)), 430_810 * 1e18, TOKEN_1);
+        assertLt(minter.weekly(), minter.TAIL_START());
     }
 
     function testCannotNudgeIfNotInTailEmissionsYet() public {
@@ -70,7 +131,7 @@ contract MinterTest is BaseTest {
 
     function testCannotNudgeIfNotEpochGovernor() public {
         /// put in tail emission schedule
-        stdstore.target(address(minter)).sig("weekly()").checked_write(5_999_999 * 1e18);
+        stdstore.target(address(minter)).sig("weekly()").checked_write(8_969_149 * 1e18);
 
         vm.prank(address(owner2));
         vm.expectRevert(IMinter.NotEpochGovernor.selector);
@@ -79,7 +140,7 @@ contract MinterTest is BaseTest {
 
     function testCannotNudgeIfAlreadyNudged() public {
         /// put in tail emission schedule
-        stdstore.target(address(minter)).sig("weekly()").checked_write(5_999_999 * 1e18);
+        stdstore.target(address(minter)).sig("weekly()").checked_write(8_969_148 * 1e18);
         assertFalse(minter.proposals(604800));
 
         vm.prank(address(epochGovernor));
@@ -93,7 +154,7 @@ contract MinterTest is BaseTest {
     }
 
     function testNudgeWhenAtUpperBoundary() public {
-        stdstore.target(address(minter)).sig("weekly()").checked_write(5_999_999 * 1e18);
+        stdstore.target(address(minter)).sig("weekly()").checked_write(8_969_149 * 1e18);
         stdstore.target(address(minter)).sig("tailEmissionRate()").checked_write(100);
         /// note: see IGovernor.ProposalState for enum numbering
         stdstore.target(address(epochGovernor)).sig("result()").checked_write(4); // nudge up
@@ -132,7 +193,7 @@ contract MinterTest is BaseTest {
     }
 
     function testNudgeWhenAtLowerBoundary() public {
-        stdstore.target(address(minter)).sig("weekly()").checked_write(5_999_999 * 1e18);
+        stdstore.target(address(minter)).sig("weekly()").checked_write(8_969_149 * 1e18);
         stdstore.target(address(minter)).sig("tailEmissionRate()").checked_write(1);
         /// note: see IGovernor.ProposalState for enum numbering
         stdstore.target(address(epochGovernor)).sig("result()").checked_write(3); // nudge down
@@ -171,17 +232,16 @@ contract MinterTest is BaseTest {
     }
 
     function testNudge() public {
-        stdstore.target(address(minter)).sig("weekly()").checked_write(5_999_999 * 1e18);
+        stdstore.target(address(minter)).sig("weekly()").checked_write(8_969_149 * 1e18);
         /// note: see IGovernor.ProposalState for enum numbering
         stdstore.target(address(epochGovernor)).sig("result()").checked_write(4); // nudge up
-        assertEq(minter.tailEmissionRate(), 30);
+        assertEq(minter.tailEmissionRate(), 67);
 
         vm.expectEmit(true, false, false, true, address(minter));
-        emit Nudge(604800, 30, 31);
+        emit Nudge(604800, 67, 68);
         vm.prank(address(epochGovernor));
         minter.nudge();
-
-        assertEq(minter.tailEmissionRate(), 31);
+        assertEq(minter.tailEmissionRate(), 68);
         assertTrue(minter.proposals(604800));
 
         skipToNextEpoch(1);
@@ -190,11 +250,11 @@ contract MinterTest is BaseTest {
         stdstore.target(address(epochGovernor)).sig("result()").checked_write(3); // nudge down
 
         vm.expectEmit(true, false, false, true, address(minter));
-        emit Nudge(1209600, 31, 30);
+        emit Nudge(1209600, 68, 67);
         vm.prank(address(epochGovernor));
         minter.nudge();
 
-        assertEq(minter.tailEmissionRate(), 30);
+        assertEq(minter.tailEmissionRate(), 67);
         assertTrue(minter.proposals(1209600));
 
         skipToNextEpoch(1);
@@ -203,26 +263,26 @@ contract MinterTest is BaseTest {
         stdstore.target(address(epochGovernor)).sig("result()").checked_write(6); // no nudge
 
         vm.expectEmit(true, false, false, true, address(minter));
-        emit Nudge(1814400, 30, 30);
+        emit Nudge(1814400, 67, 67);
         vm.prank(address(epochGovernor));
         minter.nudge();
 
-        assertEq(minter.tailEmissionRate(), 30);
+        assertEq(minter.tailEmissionRate(), 67);
         assertTrue(minter.proposals(1814400));
     }
 
     function testMinterWeeklyDistribute() public {
         minter.updatePeriod();
-        assertEq(minter.weekly(), 15 * TOKEN_1M); // 15M
+        assertEq(minter.weekly(), 10 * TOKEN_1M); // 10M
 
         uint256 pre = VELO.balanceOf(address(voter));
         skipToNextEpoch(1);
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 7499987301487620008589577);
+        assertEq(distributor.claimable(tokenId), 4999991534325080005726385);
         // emissions decay by 1% after one epoch
         uint256 post = VELO.balanceOf(address(voter));
-        assertEq(post - pre, (15 * TOKEN_1M));
-        assertEq(minter.weekly(), ((15 * TOKEN_1M) * 99) / 100);
+        assertEq(post - pre, (10 * TOKEN_1M));
+        assertEq(minter.weekly(), ((10 * TOKEN_1M) * 103) / 100);
 
         pre = post;
         skipToNextEpoch(1);
@@ -231,12 +291,12 @@ contract MinterTest is BaseTest {
         post = VELO.balanceOf(address(voter));
 
         // check rebase accumulated
-        assertEq(distributor.claimable(1), 14924987226402531787980476);
+        assertEq(distributor.claimable(1), 10149991131702758598187944);
         distributor.claim(1);
         assertEq(distributor.claimable(1), 0);
 
-        assertEq(post - pre, (15 * TOKEN_1M * 99) / 100);
-        assertEq(minter.weekly(), (((15 * TOKEN_1M * 99) / 100) * 99) / 100);
+        assertEq(post - pre, (10 * TOKEN_1M * 103) / 100);
+        assertEq(minter.weekly(), (10 * TOKEN_1M * 103 * 103) / 100 / 100);
 
         skip(1 weeks);
         vm.roll(block.number + 1);

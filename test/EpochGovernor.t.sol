@@ -92,7 +92,7 @@ contract EpochGovernorTest is BaseTest {
     }
 
     function testEpochGovernorCanExecuteSucceeded() public {
-        assertEq(minter.tailEmissionRate(), 30);
+        assertEq(minter.tailEmissionRate(), 67);
 
         address[] memory targets = new address[](1);
         targets[0] = address(minter);
@@ -147,11 +147,11 @@ contract EpochGovernorTest is BaseTest {
         assertEq(uint256(epochGovernor.state(pid)), uint256(IGovernor.ProposalState.Executed));
         assertEq(uint256(epochGovernor.result()), uint256(IGovernor.ProposalState.Succeeded));
 
-        assertEq(minter.tailEmissionRate(), 31);
+        assertEq(minter.tailEmissionRate(), 68);
     }
 
     function testEpochGovernorCanExecuteDefeated() public {
-        assertEq(minter.tailEmissionRate(), 30);
+        assertEq(minter.tailEmissionRate(), 67);
 
         address[] memory targets = new address[](1);
         targets[0] = address(minter);
@@ -206,11 +206,11 @@ contract EpochGovernorTest is BaseTest {
         assertEq(uint256(epochGovernor.state(pid)), uint256(IGovernor.ProposalState.Executed));
         assertEq(uint256(epochGovernor.result()), uint256(IGovernor.ProposalState.Defeated));
 
-        assertEq(minter.tailEmissionRate(), 29);
+        assertEq(minter.tailEmissionRate(), 66);
     }
 
     function testEpochGovernorCanExecuteExpired() public {
-        assertEq(minter.tailEmissionRate(), 30);
+        assertEq(minter.tailEmissionRate(), 67);
 
         address[] memory targets = new address[](1);
         targets[0] = address(minter);
@@ -266,11 +266,11 @@ contract EpochGovernorTest is BaseTest {
         assertEq(uint256(epochGovernor.state(pid)), uint256(IGovernor.ProposalState.Executed));
         assertEq(uint256(epochGovernor.result()), uint256(IGovernor.ProposalState.Expired));
 
-        assertEq(minter.tailEmissionRate(), 30);
+        assertEq(minter.tailEmissionRate(), 67);
     }
 
     function testEpochGovernorCanExecuteSucceededWithDelegation() public {
-        assertEq(minter.tailEmissionRate(), 30);
+        assertEq(minter.tailEmissionRate(), 67);
 
         vm.startPrank(address(owner4));
         escrow.lockPermanent(4);
@@ -333,11 +333,11 @@ contract EpochGovernorTest is BaseTest {
         assertEq(uint256(epochGovernor.state(pid)), uint256(IGovernor.ProposalState.Executed));
         assertEq(uint256(epochGovernor.result()), uint256(IGovernor.ProposalState.Succeeded));
 
-        assertEq(minter.tailEmissionRate(), 31);
+        assertEq(minter.tailEmissionRate(), 68);
     }
 
     function testCannotProposeWithAnExistingProposal() public {
-        assertEq(minter.tailEmissionRate(), 30);
+        assertEq(minter.tailEmissionRate(), 67);
 
         address[] memory targets = new address[](1);
         targets[0] = address(minter);

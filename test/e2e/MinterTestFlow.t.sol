@@ -43,7 +43,7 @@ contract MinterTestFlow is ExtendedBaseTest {
         /// epoch 1
         skipToNextEpoch(2 days); // gauge distributions spread out over 5 days
 
-        /// 15000000000000000000000000
+        /// 10000000000000000000000000
         uint256 expectedMint = _expectedMintAfter(1);
         vm.expectEmit(true, true, false, false, address(minter));
         emit Mint(address(owner), expectedMint, 0, false);
@@ -84,7 +84,7 @@ contract MinterTestFlow is ExtendedBaseTest {
         /// epoch 2
         skipToNextEpoch(1);
         uint256 balance = VELO.balanceOf(address(gauge));
-        /// 14850000000000000000000000
+        /// 10_300_000_000000000000000000 = 10_300_000e18
         expectedMint = _expectedMintAfter(2);
         balance += expectedMint / 2;
 
@@ -95,8 +95,8 @@ contract MinterTestFlow is ExtendedBaseTest {
         assertApproxEqRel(VELO.balanceOf(address(gauge)), balance, 1e6);
         assertApproxEqRel(VELO.balanceOf(address(gauge)), balance, 1e6);
 
-        /// after 92 epochs, tail emissions turn on
-        for (uint256 i = 0; i < 90; i++) {
+        /// after 67 epochs, tail emissions turn on
+        for (uint256 i = 0; i < 65; i++) {
             skipToNextEpoch(1);
             minter.updatePeriod();
         }
@@ -107,12 +107,12 @@ contract MinterTestFlow is ExtendedBaseTest {
         skipToNextEpoch(1);
 
         minter.updatePeriod();
-        /// total velo supply ~1528972128, tail emissions ~= .29% of total supply
-        /// 1528972128 ~= 50_000_000 initial supply + emissions until now
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 4_434_019 * TOKEN_1, TOKEN_1);
+        /// total velo supply ~1_318_923_747, tail emissions .29% of total supply
+        /// 1_318_923_747 ~= 50_000_000 initial supply + emissions until now
+        assertApproxEqAbs(VELO.balanceOf(address(voter)), 8_744_211 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
 
-        assertEq(minter.tailEmissionRate(), 30);
+        assertEq(minter.tailEmissionRate(), 67);
 
         // 1 now has larger lock balance than 2
         escrow.increaseUnlockTime(1, MAXTIME);
@@ -139,11 +139,11 @@ contract MinterTestFlow is ExtendedBaseTest {
 
         skipAndRoll(1 weeks); // epoch + 15 minutes + 2
         epochGovernor.execute(targets, values, calldatas, keccak256(bytes(description)));
-        assertEq(minter.tailEmissionRate(), 31);
+        assertEq(minter.tailEmissionRate(), 68);
 
         minter.updatePeriod();
-        /// total velo supply ~1534589820, tail emissions .30% of total supply
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 4_603_769 * TOKEN_1, TOKEN_1);
+        /// total velo supply ~1_333_083_660, tail emissions .67% of total supply
+        assertApproxEqAbs(VELO.balanceOf(address(voter)), 8_968_681 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
 
         description = Strings.toString(block.timestamp);
@@ -162,11 +162,11 @@ contract MinterTestFlow is ExtendedBaseTest {
 
         skipAndRoll(30 minutes + 3); // epoch + 30 minutes + 3
         epochGovernor.execute(targets, values, calldatas, keccak256(bytes(description)));
-        assertEq(minter.tailEmissionRate(), 31);
+        assertEq(minter.tailEmissionRate(), 68);
 
         minter.updatePeriod();
-        /// total velo supply ~1542173939, tail emissions .30% of total supply
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 4_626_521 * TOKEN_1, TOKEN_1);
+        /// total velo supply ~1_347_869_657, tail emissions .68% of total supply
+        assertApproxEqAbs(VELO.balanceOf(address(voter)), 9_064_968 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
 
         /// expect 0 (against vote) to pass
@@ -176,19 +176,23 @@ contract MinterTestFlow is ExtendedBaseTest {
 
         skipAndRoll(1 weeks);
         epochGovernor.execute(targets, values, calldatas, keccak256(bytes(description2)));
-        assertEq(minter.tailEmissionRate(), 30);
+        assertEq(minter.tailEmissionRate(), 67);
 
         minter.updatePeriod();
-        /// total velo supply ~1551517856, tail emissions .29% of total supply
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 4_499_401 * TOKEN_1, TOKEN_1);
+        /// total velo supply ~1_361_640_291, tail emissions .67% of total supply
+        assertApproxEqAbs(VELO.balanceOf(address(voter)), 9_027_516 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
     }
 
     /// @dev Helper to calculate expected tokens minted.
     function _expectedMintAfter(uint256 _weeks) internal pure returns (uint256) {
-        uint256 amount = 15_000_000 * 1e18;
+        uint256 amount = 10_000_000 * 1e18;
         for (uint256 i = 0; i < _weeks - 1; i++) {
-            amount = (amount * 9_900) / 10_000;
+            if (_weeks <= 14) {
+                amount = (amount * 10_300) / 10_000;
+            } else {
+                amount = (amount * 9_900) / 10_000;
+            }
         }
         return amount;
     }

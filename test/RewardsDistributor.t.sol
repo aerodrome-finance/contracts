@@ -68,33 +68,33 @@ contract RewardsDistributorTest is BaseTest {
         // epoch 2
         skipToNextEpoch(0); // distribute epoch 1's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 1729084169159347473560067);
-        assertEq(distributor.claimable(tokenId2), 1729084169159347473560067);
+        assertEq(distributor.claimable(tokenId), 1152722779439564982373378);
+        assertEq(distributor.claimable(tokenId2), 1152722779439564982373378);
 
         // epoch 3
         skipToNextEpoch(0); // distribute epoch 2's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 5243549707112114571615625);
-        assertEq(distributor.claimable(tokenId2), 5243549707112114571615625);
+        assertEq(distributor.claimable(tokenId), 3574509985698454145913662);
+        assertEq(distributor.claimable(tokenId2), 3574509985698454145913662);
 
         // epoch 4
         skipToNextEpoch(0); // distribute epoch 3's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 8770075358087237168892705);
-        assertEq(distributor.claimable(tokenId2), 8770075358087237168892705);
+        assertEq(distributor.claimable(tokenId), 6100132525537650835610574);
+        assertEq(distributor.claimable(tokenId2), 6100132525537650835610574);
 
         // epoch 5
         skipToNextEpoch(0); // distribute epoch 4's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 12290028753669491499645179);
-        assertEq(distributor.claimable(tokenId2), 12290028753669491499645179);
+        assertEq(distributor.claimable(tokenId), 8723818542033905018192152);
+        assertEq(distributor.claimable(tokenId2), 8723818542033905018192152);
 
         IVotingEscrow.LockedBalance memory preLocked = escrow.locked(tokenId);
         vm.expectEmit(true, true, true, true, address(distributor));
-        emit Claimed(tokenId, 1209600, 3628800, 12290028753669491499645179);
+        emit Claimed(tokenId, 1209600, 3628800, 8723818542033905018192152);
         distributor.claim(tokenId);
         IVotingEscrow.LockedBalance memory postLocked = escrow.locked(tokenId);
-        assertEq(postLocked.amount - preLocked.amount, 12290028753669491499645179);
+        assertEq(postLocked.amount - preLocked.amount, 8723818542033905018192152);
         assertEq(postLocked.end, 127008000);
         assertEq(postLocked.isPermanent, false);
     }
@@ -141,33 +141,33 @@ contract RewardsDistributorTest is BaseTest {
         // epoch 2
         skipToNextEpoch(0); // distribute epoch 1's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 1727999075540175979869397);
-        assertEq(distributor.claimable(tokenId2), 1727999075540175979869397);
+        assertEq(distributor.claimable(tokenId), 1151999383693450653246265);
+        assertEq(distributor.claimable(tokenId2), 1151999383693450653246265);
 
         // epoch 3
         skipToNextEpoch(0); // distribute epoch 2's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 5240014598088870540191662);
-        assertEq(distributor.claimable(tokenId2), 5240014598088870540191662);
+        assertEq(distributor.claimable(tokenId), 3571896700737325138420140);
+        assertEq(distributor.claimable(tokenId2), 3571896700737325138420140);
 
         // epoch 4
         skipToNextEpoch(0); // distribute epoch 3's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 8763959218289912828270287);
-        assertEq(distributor.claimable(tokenId2), 8763959218289912828270287);
+        assertEq(distributor.claimable(tokenId), 6095329697846513945318258);
+        assertEq(distributor.claimable(tokenId2), 6095329697846513945318258);
 
         // epoch 5
         skipToNextEpoch(0); // distribute epoch 4's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 12281260679258530693253031);
-        assertEq(distributor.claimable(tokenId2), 12281260679258530693253031);
+        assertEq(distributor.claimable(tokenId), 8716604666283848308450898);
+        assertEq(distributor.claimable(tokenId2), 8716604666283848308450898);
 
         IVotingEscrow.LockedBalance memory preLocked = escrow.locked(tokenId);
         vm.expectEmit(true, true, true, true, address(distributor));
-        emit Claimed(tokenId, 1209600, 3628800, 12281260679258530693253031);
+        emit Claimed(tokenId, 1209600, 3628800, 8716604666283848308450898);
         distributor.claim(tokenId);
         IVotingEscrow.LockedBalance memory postLocked = escrow.locked(tokenId);
-        assertEq(postLocked.amount - preLocked.amount, 12281260679258530693253031);
+        assertEq(postLocked.amount - preLocked.amount, 8716604666283848308450898);
         assertEq(postLocked.end, 0);
         assertEq(postLocked.isPermanent, true);
     }
@@ -188,34 +188,34 @@ contract RewardsDistributorTest is BaseTest {
         // epoch 2
         skipToNextEpoch(0); // distribute epoch 1's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 1735077824992569652329981);
-        assertEq(distributor.claimable(tokenId2), 1722005334586405820834054);
+        assertEq(distributor.claimable(tokenId), 1156718549995046434886653);
+        assertEq(distributor.claimable(tokenId2), 1148003556390937213889369);
 
         // epoch 3
         skipToNextEpoch(0); // distribute epoch 2's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 5270109563877931659312925);
-        assertEq(distributor.claimable(tokenId2), 5213454518413399527375189);
+        assertEq(distributor.claimable(tokenId), 3592576292985905298081775);
+        assertEq(distributor.claimable(tokenId2), 3553830195833140059510403);
 
         // epoch 4
         skipToNextEpoch(0); // distribute epoch 3's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 8825787076678898502848913);
-        assertEq(distributor.claimable(tokenId2), 8708247170483989893255376);
+        assertEq(distributor.claimable(tokenId), 6138904736852107630169458);
+        assertEq(distributor.claimable(tokenId2), 6056557145435464774714642);
 
         // epoch 5
         skipToNextEpoch(0); // distribute epoch 4's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 12383402011125452425503614);
-        assertEq(distributor.claimable(tokenId2), 12187887011282467549863442);
+        assertEq(distributor.claimable(tokenId), 8790443106370251794057763);
+        assertEq(distributor.claimable(tokenId2), 8649979626504650436393148);
 
         uint256 pre = convert(escrow.locked(tokenId).amount);
         vm.expectEmit(true, true, true, true, address(distributor));
-        emit Claimed(tokenId, 1209600, 3628800, 12383402011125452425503614);
+        emit Claimed(tokenId, 1209600, 3628800, 8790443106370251794057763);
         distributor.claim(tokenId);
         uint256 post = convert(escrow.locked(tokenId).amount);
 
-        assertEq(post - pre, 12383402011125452425503614);
+        assertEq(post - pre, 8790443106370251794057763);
     }
 
     function testClaimWithLockCreatedMoreThan50EpochsLater() public {
@@ -231,21 +231,21 @@ contract RewardsDistributorTest is BaseTest {
 
         skipToNextEpoch(0);
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 2149471489713384779960098);
-        assertEq(distributor.claimable(tokenId2), 2149471489713384779960098);
+        assertEq(distributor.claimable(tokenId), 2495582574387838171855988);
+        assertEq(distributor.claimable(tokenId2), 2495582574387838171855988);
 
         skipToNextEpoch(0);
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 4277588578570921773802383);
-        assertEq(distributor.claimable(tokenId2), 4277588578570921773802383);
+        assertEq(distributor.claimable(tokenId), 4966371507343622027541916, "1");
+        assertEq(distributor.claimable(tokenId2), 4966371507343622027541916, "2");
 
         uint256 pre = convert(escrow.locked(tokenId).amount);
         vm.expectEmit(true, true, true, true, address(distributor));
-        emit Claimed(tokenId, 33868800, 35078400, 4277588578570921773802383);
+        emit Claimed(tokenId, 33868800, 35078400, 4966371507343622027541916);
         distributor.claim(tokenId);
         uint256 post = convert(escrow.locked(tokenId).amount);
 
-        assertEq(post - pre, 4277588578570921773802383);
+        assertEq(post - pre, 4966371507343622027541916, "4");
     }
 
     function testClaimWithIncreaseAmountOnEpochFlip() public {
@@ -257,18 +257,18 @@ contract RewardsDistributorTest is BaseTest {
 
         skipToNextEpoch(0); // distribute epoch 1's rebases
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 1729084169159347473560067);
-        assertEq(distributor.claimable(tokenId2), 1729084169159347473560067);
+        assertEq(distributor.claimable(tokenId), 1152722779439564982373378);
+        assertEq(distributor.claimable(tokenId2), 1152722779439564982373378);
 
         skipToNextEpoch(0);
-        assertEq(distributor.claimable(tokenId), 1729084169159347473560067);
-        assertEq(distributor.claimable(tokenId2), 1729084169159347473560067);
+        assertEq(distributor.claimable(tokenId), 1152722779439564982373378);
+        assertEq(distributor.claimable(tokenId2), 1152722779439564982373378);
         // making lock larger on flip should not impact claimable
         VELO.approve(address(escrow), TOKEN_1M);
         escrow.increaseAmount(tokenId, TOKEN_1M);
         minter.updatePeriod(); // epoch 1's rebases available
-        assertEq(distributor.claimable(tokenId), 5243549707112114571615625);
-        assertEq(distributor.claimable(tokenId2), 5243549707112114571615625);
+        assertEq(distributor.claimable(tokenId), 3574509985698454145913662);
+        assertEq(distributor.claimable(tokenId2), 3574509985698454145913662);
     }
 
     function testClaimWithExpiredNFT() public {
@@ -279,7 +279,7 @@ contract RewardsDistributorTest is BaseTest {
 
         skipToNextEpoch(1);
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 7495155693034920864224519);
+        assertEq(distributor.claimable(tokenId), 4996770462023280576149678);
 
         for (uint256 i = 0; i < 4; i++) {
             minter.updatePeriod();
@@ -287,7 +287,7 @@ contract RewardsDistributorTest is BaseTest {
         }
         minter.updatePeriod();
 
-        assertGt(distributor.claimable(tokenId), 7495155693034920864224519); // accrued rebases
+        assertGt(distributor.claimable(tokenId), 4996770462023280576149678); // accrued rebases
 
         IVotingEscrow.LockedBalance memory locked = escrow.locked(tokenId);
         assertGt(block.timestamp, locked.end); // lock expired
@@ -295,7 +295,7 @@ contract RewardsDistributorTest is BaseTest {
         uint256 rebase = distributor.claimable(tokenId);
         uint256 pre = VELO.balanceOf(address(owner));
         vm.expectEmit(true, true, true, true, address(distributor));
-        emit Claimed(tokenId, 604800, 3628800, 22324484593877314821472906);
+        emit Claimed(tokenId, 604800, 3628800, 15491459054552564388715110);
         distributor.claim(tokenId);
         uint256 post = VELO.balanceOf(address(owner));
 
@@ -314,8 +314,8 @@ contract RewardsDistributorTest is BaseTest {
 
         skipToNextEpoch(1);
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 102871014237550493815906);
-        assertEq(distributor.claimable(tokenId2), 7098096126997954553674509);
+        assertEq(distributor.claimable(tokenId), 68580676158366995877271);
+        assertEq(distributor.claimable(tokenId2), 4732064084665303035783005);
 
         for (uint256 i = 0; i < 4; i++) {
             minter.updatePeriod();
@@ -372,10 +372,10 @@ contract RewardsDistributorTest is BaseTest {
         minter.updatePeriod();
 
         // epoch 0 rebases distributed
-        assertEq(distributor.claimable(tokenId), 2208999175922869862903223);
+        assertEq(distributor.claimable(tokenId), 1472666117281913241935482);
         assertEq(distributor.claimable(tokenId2), 0);
-        assertEq(distributor.claimable(tokenId3), 2208999175922869862903223);
-        assertEq(distributor.claimable(mTokenId), 2208999175922869862903223);
+        assertEq(distributor.claimable(tokenId3), 1472666117281913241935482);
+        assertEq(distributor.claimable(mTokenId), 1472666117281913241935482);
 
         skipAndRoll(1 days); // deposit @ epoch 1 + 1 days
         voter.depositManaged(tokenId3, mTokenId);
@@ -384,10 +384,10 @@ contract RewardsDistributorTest is BaseTest {
         minter.updatePeriod();
 
         // epoch 1 rebases distributed
-        assertEq(distributor.claimable(tokenId), 4484103206636865112836782);
+        assertEq(distributor.claimable(tokenId), 3034974130530850064652066);
         assertEq(distributor.claimable(tokenId2), 0);
-        assertEq(distributor.claimable(tokenId3), 2208999175922869862903223);
-        assertEq(distributor.claimable(mTokenId), 6759207237350860362770341);
+        assertEq(distributor.claimable(tokenId3), 1472666117281913241935482);
+        assertEq(distributor.claimable(mTokenId), 4597282143779786887368651);
         distributor.claim(mTokenId); // claim token rewards
         assertEq(distributor.claimable(mTokenId), 0);
 
@@ -398,21 +398,21 @@ contract RewardsDistributorTest is BaseTest {
         minter.updatePeriod();
 
         // epoch 2 rebases distributed
-        assertEq(distributor.claimable(tokenId), 5018948269520755439665561);
+        assertEq(distributor.claimable(tokenId), 3525007759056630145279165);
         assertEq(distributor.claimable(tokenId2), 0);
-        assertEq(distributor.claimable(tokenId3), 2208999175922869862903223); // claimable unchanged
-        assertEq(distributor.claimable(tokenId4), 534845062883890326828779); // claim rebases from last epoch
-        assertEq(distributor.claimable(mTokenId), 4684818745673948174262305);
+        assertEq(distributor.claimable(tokenId3), 1472666117281913241935482); // claimable unchanged
+        assertEq(distributor.claimable(tokenId4), 490033628525780080627099); // claim rebases from last epoch
+        assertEq(distributor.claimable(mTokenId), 3232890107324746138960350);
 
         skipToNextEpoch(0); // epoch 4
         minter.updatePeriod();
 
         // rewards for epoch 2 locks
-        assertEq(distributor.claimable(tokenId), 5579949848088898011103356);
+        assertEq(distributor.claimable(tokenId), 4055378562868735311657493);
         assertEq(distributor.claimable(tokenId2), 0);
-        assertEq(distributor.claimable(tokenId3), 2208999175922869862903223); // claimable unchanged
-        assertEq(distributor.claimable(tokenId4), 1095846641452032898266574);
-        assertEq(distributor.claimable(mTokenId), 9598747832833279901019188);
+        assertEq(distributor.claimable(tokenId3), 1472666117281913241935482); // claimable unchanged
+        assertEq(distributor.claimable(tokenId4), 1020404432337885247005427);
+        assertEq(distributor.claimable(mTokenId), 6731895940896480078601988);
 
         skipAndRoll(1 hours + 1);
         voter.withdrawManaged(tokenId3);
@@ -449,24 +449,24 @@ contract RewardsDistributorTest is BaseTest {
         minter.updatePeriod();
 
         // epoch 0 rebases distributed
-        assertEq(distributor.claimable(tokenId), 1349999843686651839865634);
-        assertEq(distributor.claimable(tokenId2), 1349999843686651839865634);
+        assertEq(distributor.claimable(tokenId), 899999895791101226577090);
+        assertEq(distributor.claimable(tokenId2), 899999895791101226577090);
         assertEq(distributor.claimable(mTokenId), 0);
 
         skipAndRoll(1 days);
         vm.prank(address(owner3));
         voter.depositManaged(tokenId2, mTokenId);
 
-        assertEq(distributor.claimable(tokenId), 1349999843686651839865634);
-        assertEq(distributor.claimable(tokenId2), 1349999843686651839865634);
+        assertEq(distributor.claimable(tokenId), 899999895791101226577090);
+        assertEq(distributor.claimable(tokenId2), 899999895791101226577090);
         assertEq(distributor.claimable(mTokenId), 0);
 
         skipToNextEpoch(1 hours); // epoch 2
         minter.updatePeriod();
 
-        assertEq(distributor.claimable(tokenId), 3202834489816880875721686);
-        assertEq(distributor.claimable(tokenId2), 1349999843686651839865634); // claimable unchanged
-        assertEq(distributor.claimable(mTokenId), 1852834646130229035856052); // rebase earned by tokenId2
+        assertEq(distributor.claimable(tokenId), 2082507730394926619421556);
+        assertEq(distributor.claimable(tokenId2), 899999895791101226577090); // claimable unchanged
+        assertEq(distributor.claimable(mTokenId), 1182507834603825392844466); // rebase earned by tokenId2
 
         skipAndRoll(1);
         vm.prank(address(owner3));
@@ -475,9 +475,9 @@ contract RewardsDistributorTest is BaseTest {
         skipToNextEpoch(0); // epoch 3
         minter.updatePeriod();
 
-        assertEq(distributor.claimable(tokenId), 5424193883727987255201747);
-        assertEq(distributor.claimable(tokenId2), 3554622985801289719006486);
-        assertEq(distributor.claimable(mTokenId), 1852834646130229035856052); // claimable unchanged
+        assertEq(distributor.claimable(tokenId), 3536190096302840449423561);
+        assertEq(distributor.claimable(tokenId2), 2342729871836028977218998);
+        assertEq(distributor.claimable(mTokenId), 1182507834603825392844466); // claimable unchanged
     }
 
     function testCannotClaimRebaseWithLockedNFT() public {
@@ -489,7 +489,7 @@ contract RewardsDistributorTest is BaseTest {
         skipToNextEpoch(2 hours); // epoch 1
         minter.updatePeriod();
 
-        assertEq(distributor.claimable(tokenId), 7118251470556380426349704);
+        assertEq(distributor.claimable(tokenId), 4745500980370920284233136);
         assertEq(distributor.claimable(mTokenId), 0);
 
         voter.depositManaged(tokenId, mTokenId);
@@ -509,8 +509,8 @@ contract RewardsDistributorTest is BaseTest {
         skipToNextEpoch(2 hours); // epoch 1
         minter.updatePeriod();
 
-        assertEq(distributor.claimable(tokenId), 555574220239032561432497);
-        assertEq(distributor.claimable(tokenId2), 4444593761912260841871749);
+        assertEq(distributor.claimable(tokenId), 370382813492688374288331);
+        assertEq(distributor.claimable(tokenId2), 2963062507941507227914498);
 
         skipToNextEpoch(1 hours); // epoch 3
         vm.expectRevert(IRewardsDistributor.UpdatePeriod.selector);

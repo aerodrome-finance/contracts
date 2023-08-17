@@ -750,7 +750,7 @@ contract PoolTest is BaseTest {
         voter.updateFor(gauges);
         voter.distribute(0, voter.length());
         voter.claimRewards(gauges);
-        assertEq(gauge.rewardRate(), 99617156796313863667);
+        assertEq(gauge.rewardRate(), 71886434476216289470);
         console2.log(gauge.rewardPerTokenStored());
     }
 

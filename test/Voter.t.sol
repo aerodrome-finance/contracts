@@ -723,7 +723,8 @@ contract VoterTest is BaseTest {
 
         // zero-out rewards from minter so in a new rebase, new VELO is minted
         vm.prank(address(minter));
-        VELO.transfer(address(1), 14999999999999999999999999);
+        VELO.transfer(address(1), 9999999999999999999999999);
+
         assertEq(VELO.balanceOf(address(minter)), 0);
 
         // next epoch - votes/weights stay on gauge and no rewards get trapped in voter
@@ -843,8 +844,8 @@ contract VoterTest is BaseTest {
         voter.updateFor(address(gauge2));
 
         // check existence of claims against gauges
-        assertEq(voter.claimable(address(gauge)), 7499999999999999999999999);
-        assertEq(voter.claimable(address(gauge2)), 7499999999999999999999999);
+        assertEq(voter.claimable(address(gauge)), 4999999999999999999999999);
+        assertEq(voter.claimable(address(gauge2)), 4999999999999999999999999);
 
         address[] memory gauges = new address[](2);
         gauges[0] = address(gauge);
@@ -858,7 +859,7 @@ contract VoterTest is BaseTest {
         // killed gauge receives no contributions
         assertEq(VELO.balanceOf(address(gauge)), 0);
         // gauge2 receives distributions
-        assertEq(VELO.balanceOf(address(gauge2)), 7499999999999999999999999);
+        assertEq(VELO.balanceOf(address(gauge2)), 4999999999999999999999999);
     }
 
     function testCannotNotifyRewardAmountIfNotMinter() public {
