@@ -4,6 +4,8 @@ pragma solidity 0.8.19;
 import "./BaseTest.sol";
 
 contract GaugeTest is BaseTest {
+    address public team;
+
     function _setUp() public override {
         // ve
         VELO.approve(address(escrow), TOKEN_1);
@@ -19,6 +21,7 @@ contract GaugeTest is BaseTest {
         vm.warp(block.timestamp + 1);
 
         skipToNextEpoch(0);
+        team = escrow.team();
     }
 
     event Deposit(address indexed from, address indexed to, uint256 amount);
@@ -486,6 +489,7 @@ contract GaugeTest is BaseTest {
         deal(address(VELO), address(voter), reward);
         vm.startPrank(address(voter));
         VELO.approve(address(gauge), reward);
+        vm.expectCall(Gauge(gauge).stakingToken(), abi.encodeCall(IPool.claimFees, ()), 1);
         Gauge(gauge).notifyRewardAmount(reward);
         vm.stopPrank();
 
@@ -504,6 +508,7 @@ contract GaugeTest is BaseTest {
         deal(address(VELO), address(voter), reward);
         vm.startPrank(address(voter));
         VELO.approve(address(gauge), reward);
+        vm.expectCall(Gauge(gauge).stakingToken(), abi.encodeCall(IPool.claimFees, ()), 1);
         Gauge(gauge).notifyRewardAmount(reward);
         vm.stopPrank();
 
@@ -524,6 +529,86 @@ contract GaugeTest is BaseTest {
     function testCannotNotifyRewardAmountIfNotVoter() public {
         vm.expectRevert(IGauge.NotVoter.selector);
         gauge.notifyRewardAmount(TOKEN_1);
+    }
+
+    function testNotifyRewardsWithoutClaimAfterClaimingFees() public {
+        uint256 reward = TOKEN_1;
+        deal(address(VELO), address(voter), reward);
+        vm.startPrank(address(voter));
+        VELO.approve(address(gauge), reward);
+        Gauge(gauge).notifyRewardAmount(reward);
+        vm.stopPrank();
+
+        uint256 epochStart = _getEpochStart(block.timestamp);
+        assertApproxEqRel(gauge.rewardRate(), reward / DURATION, 1e6);
+        assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), reward / DURATION, 1e6);
+        assertEq(VELO.balanceOf(address(gauge)), TOKEN_1);
+        assertEq(gauge.lastUpdateTime(), block.timestamp);
+        assertEq(gauge.periodFinish(), _getEpochStart(block.timestamp) + DURATION);
+
+        skipAndRoll(1 days);
+
+        vm.startPrank(team);
+        VELO.approve(address(gauge), reward);
+        vm.expectCall(Gauge(gauge).stakingToken(), abi.encodeCall(IPool.claimFees, ()), 0);
+        Gauge(gauge).notifyRewardWithoutClaim(reward);
+        vm.stopPrank();
+
+        uint256 prevReward = (reward * 6) / 7; // Only 6/7 of previously added rewards are available after 1 day
+        reward = TOKEN_1 + prevReward; // Rewards available = newly emitted rewards + previous rewards
+
+        epochStart = _getEpochStart(block.timestamp);
+        assertApproxEqRel(gauge.rewardRate(), (reward / (6 days)), 1e6);
+        assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), reward / (6 days), 1e6);
+        assertEq(VELO.balanceOf(address(gauge)), 2 * TOKEN_1);
+        assertEq(gauge.lastUpdateTime(), block.timestamp);
+        assertEq(gauge.periodFinish(), _getEpochStart(block.timestamp) + DURATION);
+    }
+
+    function testNotifyRewardWithoutClaimNonZeroAmount() public {
+        uint256 reward = TOKEN_1;
+        vm.startPrank(team);
+        VELO.approve(address(gauge), reward);
+        vm.expectCall(Gauge(gauge).stakingToken(), abi.encodeCall(IPool.claimFees, ()), 0);
+        Gauge(gauge).notifyRewardWithoutClaim(reward);
+        vm.stopPrank();
+
+        uint256 epochStart = _getEpochStart(block.timestamp);
+        assertApproxEqRel(gauge.rewardRate(), reward / DURATION, 1e6);
+        assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), reward / DURATION, 1e6);
+        assertEq(VELO.balanceOf(address(gauge)), TOKEN_1);
+        assertEq(gauge.lastUpdateTime(), block.timestamp);
+        assertEq(gauge.periodFinish(), _getEpochStart(block.timestamp) + DURATION);
+    }
+
+    function testNotifyRewardWithoutClaimNonZeroAmountOneDayAfterEpochFlip() public {
+        skipAndRoll(1 days);
+
+        uint256 reward = TOKEN_1;
+        vm.startPrank(team);
+        VELO.approve(address(gauge), reward);
+        vm.expectCall(Gauge(gauge).stakingToken(), abi.encodeCall(IPool.claimFees, ()), 0);
+        Gauge(gauge).notifyRewardWithoutClaim(reward);
+        vm.stopPrank();
+
+        uint256 epochStart = _getEpochStart(block.timestamp);
+        assertApproxEqRel(gauge.rewardRate(), (reward / (6 days)), 1e6);
+        assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), reward / (6 days), 1e6);
+        assertEq(VELO.balanceOf(address(gauge)), TOKEN_1);
+        assertEq(gauge.lastUpdateTime(), block.timestamp);
+        assertEq(gauge.periodFinish(), _getEpochStart(block.timestamp) + DURATION);
+    }
+
+    function testCannotNotifyRewardWithoutClaimIfNotTeam() public {
+        vm.prank(address(voter));
+        vm.expectRevert(IGauge.NotTeam.selector);
+        gauge.notifyRewardWithoutClaim(TOKEN_1);
+    }
+
+    function testCannotNotifyRewardWithoutClaimIfZeroAmount() public {
+        vm.prank(team);
+        vm.expectRevert(IGauge.ZeroAmount.selector);
+        gauge.notifyRewardWithoutClaim(0);
     }
 
     function testCannotGetRewardIfNotOwnerOrVoter() public {

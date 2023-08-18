@@ -5,6 +5,7 @@ interface IGauge {
     error NotAlive();
     error NotAuthorized();
     error NotVoter();
+    error NotTeam();
     error RewardRateTooHigh();
     error ZeroAmount();
     error ZeroRewardRate();
@@ -26,6 +27,9 @@ interface IGauge {
 
     /// @notice Address of Velodrome v2 Voter
     function voter() external view returns (address);
+
+    /// @notice Address of Velodrome v2 Team
+    function team() external view returns (address);
 
     /// @notice Returns if gauge is linked to a legitimate Velodrome pool
     function isPool() external view returns (bool);
@@ -96,4 +100,9 @@ interface IGauge {
     /// @dev Notifies gauge of gauge rewards. Assumes gauge reward tokens is 18 decimals.
     ///      If not 18 decimals, rewardRate may have rounding issues.
     function notifyRewardAmount(uint256 amount) external;
+
+    /// @dev Notifies gauge of gauge rewards without distributing its fees.
+    ///      Assumes gauge reward tokens is 18 decimals.
+    ///      If not 18 decimals, rewardRate may have rounding issues.
+    function notifyRewardWithoutClaim(uint256 amount) external;
 }

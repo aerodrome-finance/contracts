@@ -26,6 +26,8 @@ contract Gauge is IGauge, ERC2771Context, ReentrancyGuard {
     address public immutable feesVotingReward;
     /// @inheritdoc IGauge
     address public immutable voter;
+    /// @inheritdoc IGauge
+    address public immutable team;
 
     /// @inheritdoc IGauge
     bool public immutable isPool;
@@ -70,6 +72,7 @@ contract Gauge is IGauge, ERC2771Context, ReentrancyGuard {
         rewardToken = _rewardToken;
         voter = _voter;
         isPool = _isPool;
+        team = IVotingEscrow(IVoter(voter).ve()).team();
     }
 
     function _claimFees() internal returns (uint256 claimed0, uint256 claimed1) {
@@ -196,6 +199,18 @@ contract Gauge is IGauge, ERC2771Context, ReentrancyGuard {
         if (sender != voter) revert NotVoter();
         if (_amount == 0) revert ZeroAmount();
         _claimFees();
+        _notifyRewardAmount(sender, _amount);
+    }
+
+    /// @inheritdoc IGauge
+    function notifyRewardWithoutClaim(uint256 _amount) external nonReentrant {
+        address sender = _msgSender();
+        if (sender != team) revert NotTeam();
+        if (_amount == 0) revert ZeroAmount();
+        _notifyRewardAmount(sender, _amount);
+    }
+
+    function _notifyRewardAmount(address sender, uint256 _amount) internal {
         rewardPerTokenStored = rewardPerToken();
         uint256 timestamp = block.timestamp;
         uint256 timeUntilNext = VelodromeTimeLibrary.epochNext(timestamp) - timestamp;
