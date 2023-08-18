@@ -27,18 +27,19 @@ source .env
 ```
 forge script script/DeployVelodromeV2.s.sol:DeployVelodromeV2 --broadcast --slow --rpc-url optimism --verify -vvvv
 ```
+2. Accept pending team as team. This needs to be done by the `minter.pendingTeam()` address. Within the deployed `Minter` contract call `acceptTeam()`.
 
-2. Deploy v2 gauges and v2 pools.  These gauges are built on Velodrome v2 using newly created v2 pools.
+3. Deploy v2 gauges and v2 pools.  These gauges are built on Velodrome v2 using newly created v2 pools.
 ```
 forge script script/DeployGaugesAndPoolsV2.s.sol:DeployGaugesAndPoolsV2 --broadcast --slow --rpc-url optimism --verify -vvvv
 ```
 
-3. Deploy governor contracts
+4. Deploy governor contracts
 ```
 forge script script/DeployGovernors.s.sol:DeployGovernors --broadcast --slow --rpc-url optimism --verify -vvvv
 ```
-4.  Update the governor addresses on v2.  This needs to be done by the v2 `escrow.team()` address.  Within v2 `voter`:
+5.  Update the governor addresses on v2.  This needs to be done by the v2 `escrow.team()` address.  Within v2 `voter`:
  - call `setEpochGovernor()` using the `EpochGovernor` address located in `script/constants/output/{OUTPUT_FILENAME}`
  - call `setGovernor()` using the `Governor` address located in the same file.
 
-5. Accept governor vetoer status.  This also needs to be done by the v2 `escrow.team()` address.  Within the deployed `Governor` contract call `acceptVetoer()`.
+6. Accept governor vetoer status.  This also needs to be done by the v2 `escrow.team()` address.  Within the deployed `Governor` contract call `acceptVetoer()`.

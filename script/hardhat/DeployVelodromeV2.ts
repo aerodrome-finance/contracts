@@ -150,6 +150,7 @@ async function main() {
 
   // ====== start _deploySetupAfter() ======
   await escrow.setTeam(jsonConstants.team);
+  await minter.setTeam(jsonConstants.team);
   await poolFactory.setPauser(jsonConstants.team);
   await voter.setEmergencyCouncil(jsonConstants.team);
   await voter.setEpochGovernor(jsonConstants.team);

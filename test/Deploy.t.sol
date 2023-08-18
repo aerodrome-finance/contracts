@@ -115,6 +115,7 @@ contract TestDeploy is BaseTest {
         assertEq(address(deployVelodromeV2.minter().rewardsDistributor()), address(deployVelodromeV2.distributor()));
 
         // Permissions
+        assertEq(address(deployVelodromeV2.minter().pendingTeam()), team);
         assertEq(deployVelodromeV2.escrow().team(), team);
         assertEq(deployVelodromeV2.escrow().allowedManager(), team);
         assertEq(deployVelodromeV2.factory().pauser(), team);

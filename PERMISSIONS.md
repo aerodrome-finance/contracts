@@ -97,6 +97,10 @@ This is an exhaustive list of all admin permissions in Velodrome V2, sorted by t
     - This is used to add new pools, gauges or reward factory combinations. These new pools / gauges / rewards factories may have different code to existing implementations.
 
 #### [Minter](https://optimistic.etherscan.io/address/0x6dc9E1C04eE59ed3531d73a72256C0da46D10982#code)
+- Team
+    - Can set PendingTeam in Minter
+    - Can accept itself as team in Minter (requires being set as pendingTeam by previous team)
+    - Can set team rate in Minter
 - EpochGovernor
     - Can nudge the Minter to adjust the VELO emissions rate.
 

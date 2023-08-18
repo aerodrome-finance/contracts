@@ -65,6 +65,7 @@ contract DeployVelodromeV2 is Base {
     function _deploySetupAfter() public {
         // Set protocol state to team
         escrow.setTeam(team);
+        minter.setTeam(team);
         factory.setPauser(team);
         voter.setEmergencyCouncil(emergencyCouncil);
         voter.setEpochGovernor(team);
