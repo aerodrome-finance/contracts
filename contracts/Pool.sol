@@ -135,6 +135,11 @@ contract Pool is IPool, ERC20Permit, ReentrancyGuard {
     }
 
     /// @inheritdoc IPool
+    function getK() external nonReentrant returns (uint256) {
+        return _k(reserve0, reserve1);
+    }
+
+    /// @inheritdoc IPool
     function claimFees() external returns (uint256 claimed0, uint256 claimed1) {
         address sender = _msgSender();
         _updateFor(sender);
