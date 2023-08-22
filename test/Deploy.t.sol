@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import "forge-std/Test.sol";
 import "forge-std/StdJson.sol";
 import "../script/DeployVelodromeV2.s.sol";
+import "../script/DistributeAirdrops.s.sol";
 import "../script/DeployGaugesAndPoolsV2.s.sol";
 
 import "./BaseTest.sol";
@@ -11,8 +12,11 @@ import "./BaseTest.sol";
 contract TestDeploy is BaseTest {
     using stdJson for string;
     using stdStorage for StdStorage;
+    using SafeCastLibrary for int128;
 
     string public constantsFilename = vm.envString("CONSTANTS_FILENAME");
+    string public airdropFilename = vm.envString("AIRDROPS_FILENAME");
+    string public root = vm.projectRoot();
     string public jsonConstants;
 
     address public feeManager;
@@ -33,6 +37,7 @@ contract TestDeploy is BaseTest {
 
     // Scripts to test
     DeployVelodromeV2 deployVelodromeV2;
+    DistributeAirdrops distributeAirdrops;
     DeployGaugesAndPoolsV2 deployGaugesAndPoolsV2;
 
     constructor() {
@@ -45,7 +50,6 @@ contract TestDeploy is BaseTest {
         deployVelodromeV2 = new DeployVelodromeV2();
         deployGaugesAndPoolsV2 = new DeployGaugesAndPoolsV2();
 
-        string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/script/constants/");
         path = string.concat(path, constantsFilename);
 
@@ -74,6 +78,8 @@ contract TestDeploy is BaseTest {
     function testDeployScript() public {
         deployVelodromeV2.run();
         deployGaugesAndPoolsV2.run();
+        distributeAirdrops = new DistributeAirdrops();
+        stdstore.target(address(distributeAirdrops)).sig("deployerAddress()").checked_write(testDeployer);
 
         assertEq(deployVelodromeV2.voter().epochGovernor(), team);
         assertEq(deployVelodromeV2.voter().governor(), team);
@@ -94,6 +100,45 @@ contract TestDeploy is BaseTest {
         assertEq(deployVelodromeV2.factory().voter(), address(deployVelodromeV2.voter()));
         assertEq(deployVelodromeV2.factory().stableFee(), 5);
         assertEq(deployVelodromeV2.factory().volatileFee(), 30);
+
+        // Minter Distribution checks
+        assertTrue(deployVelodromeV2.minter().initialized());
+        AirdropDistributor airdrop = deployVelodromeV2.airdrop();
+
+        // Loads Liquid Airdrop information
+        DeployVelodromeV2.AirdropInfo[] memory infos = abi.decode(
+            jsonConstants.parseRaw(".minter.liquid"),
+            (DeployVelodromeV2.AirdropInfo[])
+        );
+        (address[] memory liquidWallets, uint256[] memory liquidAmounts) = deployVelodromeV2._getLiquidAirdropInfo(
+            address(airdrop),
+            deployVelodromeV2.AIRDROPPER_BALANCE(),
+            infos
+        );
+
+        // Loads Locked Airdrop information
+        infos = abi.decode(jsonConstants.parseRaw(".minter.locked"), (DeployVelodromeV2.AirdropInfo[]));
+        (address[] memory lockedWallets, uint256[] memory lockedAmounts) = deployVelodromeV2._getLockedAirdropInfo(
+            infos
+        );
+
+        // Ensures Liquid Tokens were minted correctly
+        uint256 len = liquidWallets.length;
+        for (uint256 i = 0; i < len; i++) {
+            assertEq(deployVelodromeV2.VELO().balanceOf(liquidWallets[i]), liquidAmounts[i]);
+        }
+
+        // Ensures permanently locked NFTs were distributed correctly
+        len = lockedWallets.length;
+        uint256 tokenId;
+        for (uint256 i = 0; i < len; i++) {
+            tokenId = i + 1;
+            assertEq(deployVelodromeV2.escrow().balanceOf(lockedWallets[i]), 1);
+            IVotingEscrow.LockedBalance memory locked = deployVelodromeV2.escrow().locked(tokenId);
+            assertEq(locked.amount.toUint256(), lockedAmounts[i]);
+            assertTrue(locked.isPermanent);
+            assertEq(locked.end, 0);
+        }
 
         // v2 core
         // From _coreSetup()
@@ -149,6 +194,44 @@ contract TestDeploy is BaseTest {
             assertTrue(poolAddr != address(0));
             address gaugeAddr = deployVelodromeV2.voter().gauges(poolAddr);
             assertTrue(gaugeAddr != address(0));
+        }
+
+        // DistributeAirdrops checks
+
+        // Test Airdrop Deployment
+        IVotingEscrow escrow = airdrop.ve();
+        assertEq(airdrop.owner(), deployVelodromeV2.minter().team());
+        assertEq(address(airdrop), address(deployVelodromeV2.airdrop()));
+        assertEq(address(airdrop.ve()), address(deployVelodromeV2.escrow()));
+        assertEq(address(airdrop.velo()), address(deployVelodromeV2.VELO()));
+        assertEq(airdrop.velo().balanceOf(address(airdrop)), deployVelodromeV2.AIRDROPPER_BALANCE());
+        assertEq(deployVelodromeV2.escrow().balanceOf(address(airdrop)), 0);
+
+        stdstore.target(address(distributeAirdrops)).sig("WALLET_BATCH_SIZE()").checked_write(2);
+        distributeAirdrops.run();
+
+        // Test Airdrop Distribution
+        assertEq(airdrop.owner(), address(0));
+        string memory airdropPath = string.concat(root, "/script/constants/");
+        airdropPath = string.concat(airdropPath, airdropFilename);
+        jsonConstants = vm.readFile(airdropPath);
+        infos = abi.decode(jsonConstants.parseRaw(".airdrop"), (DeployVelodromeV2.AirdropInfo[]));
+        len = infos.length;
+        address[] memory wallets = new address[](len);
+        uint256[] memory amounts = new uint256[](len);
+
+        // Validates all emissioned Locked NFTs
+        uint256 firstAirdroppedToken = escrow.tokenId() - len;
+        for (uint256 i = 0; i < len; i++) {
+            DeployVelodromeV2.AirdropInfo memory drop = infos[i];
+            wallets[i] = drop.wallet;
+            amounts[i] = drop.amount;
+            tokenId = i + 1 + firstAirdroppedToken; // Skipping locks minted by Minter
+            assertEq(escrow.balanceOf(wallets[i]), 1);
+            IVotingEscrow.LockedBalance memory locked = escrow.locked(tokenId);
+            assertEq(locked.amount.toUint256(), amounts[i]);
+            assertTrue(locked.isPermanent);
+            assertEq(locked.end, 0);
         }
     }
 }

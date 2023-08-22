@@ -25,6 +25,7 @@ See `SPECIFICATION.md` for more detail.
 | `Minter.sol` | Protocol token minter. Distributes emissions to `Voter.sol` and rebases to `RewardsDistributor.sol`. |
 | `RewardsDistributor.sol` | Is used to handle the rebases distribution for (ve)NFTs/lockers. |
 | `VeArtProxy.sol` | (ve)NFT art proxy contract, exists for upgradability purposes |
+| `AirdropDistributor.sol` | Distributes permanently locked (ve)NFTs to the provided addresses, in the desired amounts. |
 
 ### Protocol mechanics contracts
 

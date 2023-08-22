@@ -58,6 +58,8 @@ contract Minter is IMinter {
     address public team;
     /// @inheritdoc IMinter
     address public pendingTeam;
+    /// @inheritdoc IMinter
+    bool public initialized;
 
     constructor(
         address _voter, // the voting & distribution system
@@ -70,6 +72,41 @@ contract Minter is IMinter {
         team = msg.sender;
         rewardsDistributor = IRewardsDistributor(_rewardsDistributor);
         activePeriod = ((block.timestamp) / WEEK) * WEEK; // allow emissions this coming epoch
+    }
+
+    /// @inheritdoc IMinter
+    function initialize(AirdropParams memory params) external {
+        if (initialized) revert AlreadyInitialized();
+        if (msg.sender != team) revert NotTeam();
+        if (
+            (params.liquidWallets.length != params.liquidAmounts.length) ||
+            (params.lockedWallets.length != params.lockedAmounts.length)
+        ) revert InvalidParams();
+        initialized = true;
+
+        // Liquid Token Mint
+        uint256 _len = params.liquidWallets.length;
+        for (uint256 i = 0; i < _len; i++) {
+            velo.mint(params.liquidWallets[i], params.liquidAmounts[i]);
+            emit DistributeLiquid(params.liquidWallets[i], params.liquidAmounts[i]);
+        }
+
+        // Locked NFT mint
+        _len = params.lockedWallets.length;
+        uint256 _sum;
+        for (uint256 i = 0; i < _len; i++) {
+            _sum += params.lockedAmounts[i];
+        }
+        uint256 _tokenId;
+        velo.mint(address(this), _sum);
+        velo.safeApprove(address(ve), _sum);
+        for (uint256 i = 0; i < _len; i++) {
+            _tokenId = ve.createLock(params.lockedAmounts[i], WEEK);
+            ve.lockPermanent(_tokenId);
+            ve.safeTransferFrom(address(this), params.lockedWallets[i], _tokenId);
+            emit DistributeLocked(params.lockedWallets[i], params.lockedAmounts[i], _tokenId);
+        }
+        velo.safeApprove(address(ve), 0);
     }
 
     /// @inheritdoc IMinter

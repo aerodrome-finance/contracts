@@ -492,5 +492,31 @@
         "Gov": "0x64DD805aa894dc001f8505e000c7535179D96C9E",
         "Distributor": "0x5d5Bea9f0Fc13d967511668a60a3369fD53F784F",
         "Minter": "0x3460Dc71A8863710D1C907B8d9D5DBC053a4102d"
+    },
+    "minter": {
+        "liquid": [
+            {
+                "amount": 70000000000000000000000000,
+                "wallet": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+            },
+            {
+                "amount": 50000000000000000000000000,
+                "wallet": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+            }
+        ],
+        "locked": [
+            {
+                "amount": 105000000000000000000000000,
+                "wallet": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+            },
+            {
+                "amount": 25000000000000000000000000,
+                "wallet": "0x90F79bf6EB2c4f870365E785982E1f101E93b906"
+            },
+            {
+                "amount": 50000000000000000000000000,
+                "wallet": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65"
+            }
+        ]
     }
 }

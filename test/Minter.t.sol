@@ -40,6 +40,7 @@ contract MinterTest is BaseTest {
         assertEq(minter.MAXIMUM_TEAM_RATE(), 500); // 5%
         assertEq(minter.pendingTeam(), address(0));
         assertEq(minter.epochCount(), 0);
+        assertFalse(minter.initialized());
     }
 
     function testWeeklyEmissionGrowsFirst14WeeksThenFlipsAndDecays() public {

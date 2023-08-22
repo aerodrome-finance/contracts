@@ -2,6 +2,7 @@ import { deploy, deployLibrary, getContractAt } from "./utils/helpers";
 import { writeFile } from "fs/promises";
 import { join } from "path";
 import { Libraries } from "hardhat/types";
+import { BigNumber } from "ethers";
 import {
   ManagedRewardsFactory,
   VotingRewardsFactory,
@@ -11,6 +12,7 @@ import {
   Pool,
   Minter,
   RewardsDistributor,
+  AirdropDistributor,
   Router,
   Velo,
   Voter,
@@ -22,24 +24,32 @@ import {
 import jsonConstants from "../constants/Optimism.json";
 
 interface VelodromeV2Output {
-  artProxy: string;
-  distributor: string;
-  factoryRegistry: string;
-  forwarder: string;
-  gaugeFactory: string;
-  managedRewardsFactory: string;
-  minter: string;
-  poolFactory: string;
-  router: string;
+  AirdropDistributor: string;
+  ArtProxy: string;
+  Distributor: string;
+  FactoryRegistry: string;
+  Forwarder: string;
+  GaugeFactory: string;
+  ManagedRewardsFactory: string;
+  Minter: string;
+  PoolFactory: string;
+  Router: string;
   VELO: string;
-  voter: string;
-  votingEscrow: string;
-  votingRewardsFactory: string;
+  Voter: string;
+  VotingEscrow: string;
+  VotingRewardsFactory: string;
+}
+
+interface AirdropInfo {
+  amount: number;
+  wallet: string;
 }
 
 async function main() {
   // ====== start _deploySetupBefore() ======
   const ONE = "1000000000000000000";
+  const AIRDROPPER_BALANCE = 200_000_000;
+  const DECIMAL = BigNumber.from(10).pow(18);
 
   const VELO = await deploy<Velo>("Velo");
   jsonConstants.whitelistTokens.push(VELO.address);
@@ -145,10 +155,48 @@ async function main() {
   await distributor.setMinter(minter.address);
   await VELO.setMinter(minter.address);
 
+  const airdrop = await deploy<AirdropDistributor>(
+    "AirdropDistributor",
+    undefined,
+    escrow.address
+  );
+
   await voter.initialize(jsonConstants.whitelistTokens, minter.address);
   // ====== end _coreSetup() ======
 
   // ====== start _deploySetupAfter() ======
+
+  // Minter initialization
+  let lockedAirdropInfo: AirdropInfo[] = jsonConstants.minter.locked;
+  let liquidAirdropInfo: AirdropInfo[] = jsonConstants.minter.liquid;
+
+  let liquidWallets: string[] = [];
+  let lockedWallets: string[] = [];
+  let liquidAmounts: BigNumber[] = [];
+  let lockedAmounts: BigNumber[] = [];
+
+  // First add the AirdropDistributor's address and its amount
+  liquidWallets.push(airdrop.address);
+  liquidAmounts.push(BigNumber.from(AIRDROPPER_BALANCE).mul(DECIMAL));
+
+  liquidAirdropInfo.forEach((drop) => {
+    liquidWallets.push(drop.wallet);
+    liquidAmounts.push(BigNumber.from(drop.amount / 1e18).mul(DECIMAL));
+  });
+
+  lockedAirdropInfo.forEach((drop) => {
+    lockedWallets.push(drop.wallet);
+    lockedAmounts.push(BigNumber.from(drop.amount / 1e18).mul(DECIMAL));
+  });
+
+  await minter.initialize({
+    liquidWallets: liquidWallets,
+    liquidAmounts: liquidAmounts,
+    lockedWallets: lockedWallets,
+    lockedAmounts: lockedAmounts,
+  });
+
+  // Set protocol state to team
   await escrow.setTeam(jsonConstants.team);
   await minter.setTeam(jsonConstants.team);
   await poolFactory.setPauser(jsonConstants.team);
@@ -159,6 +207,7 @@ async function main() {
 
   await poolFactory.setFeeManager(jsonConstants.feeManager);
   await poolFactory.setVoter(voter.address);
+
   // ====== end _deploySetupAfter() ======
 
   const outputDirectory = "script/constants/output";
@@ -169,19 +218,20 @@ async function main() {
   );
 
   const output: VelodromeV2Output = {
-    artProxy: artProxy.address,
-    distributor: distributor.address,
-    factoryRegistry: factoryRegistry.address,
-    forwarder: forwarder.address,
-    gaugeFactory: gaugeFactory.address,
-    managedRewardsFactory: managedRewardsFactory.address,
-    minter: minter.address,
-    poolFactory: poolFactory.address,
-    router: router.address,
+    AirdropDistributor: airdrop.address,
+    ArtProxy: artProxy.address,
+    Distributor: distributor.address,
+    FactoryRegistry: factoryRegistry.address,
+    Forwarder: forwarder.address,
+    GaugeFactory: gaugeFactory.address,
+    ManagedRewardsFactory: managedRewardsFactory.address,
+    Minter: minter.address,
+    PoolFactory: poolFactory.address,
+    Router: router.address,
     VELO: VELO.address,
-    voter: voter.address,
-    votingEscrow: escrow.address,
-    votingRewardsFactory: votingRewardsFactory.address,
+    Voter: voter.address,
+    VotingEscrow: escrow.address,
+    VotingRewardsFactory: votingRewardsFactory.address,
   };
 
   try {

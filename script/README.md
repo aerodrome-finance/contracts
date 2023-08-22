@@ -5,8 +5,9 @@ Velodrome v2 deployment is a multi-step process.  Unlike testing, we cannot impe
 ### Environment setup
 1. Copy-pasta `.env.sample` into a new `.env` and set the environment variables. `PRIVATE_KEY_DEPLOY` is the private key to deploy all scripts.
 2. Copy-pasta `script/constants/TEMPLATE.json` into a new file `script/constants/{CONSTANTS_FILENAME}`. For example, "Optimism.json" in the .env would be a file of `script/constants/Optimism.json`.  Set the variables in the new file.
+3. Copy-pasta `script/constants/AirdropTEMPLATE.json` into a new file `script/constants/{AIRDROPS_FILENAME}`. For example, "Airdrop.json" in the .env would be a file of `script/constants/Airdrop.json`.  Set the addresses and amounts in this file to setup the Airdrops to be distributed.
 
-3. Run tests to ensure deployment state is configured correctly:
+4. Run tests to ensure deployment state is configured correctly:
 ```ml
 forge init
 forge build
@@ -15,7 +16,7 @@ forge test
 
 *Note that this will create a `script/constants/output/{OUTPUT_FILENAME}` file with the contract addresses created in testing.  If you are using the same constants for multiple deployments (for example, deploying in a local fork and then in prod), you can rename `OUTPUT_FILENAME` to store the new contract addresses while using the same constants.
 
-4. Ensure all v2 deployments are set properly. In project directory terminal:
+5. Ensure all v2 deployments are set properly. In project directory terminal:
 ```
 source .env
 ```
@@ -34,12 +35,17 @@ forge script script/DeployVelodromeV2.s.sol:DeployVelodromeV2 --broadcast --slow
 forge script script/DeployGaugesAndPoolsV2.s.sol:DeployGaugesAndPoolsV2 --broadcast --slow --rpc-url optimism --verify -vvvv
 ```
 
-4. Deploy governor contracts
+4. Distribute locked NFTs using the AirdropDistributor. This needs to be done by the `airdrop.owner()` address.
+```
+forge script script/DistributeAirdrops.s.sol:DistributeAirdrops --broadcast --slow --gas-estimate-multiplier 200 --legacy --rpc-url optimism --verify -vvvv
+```
+
+5. Deploy governor contracts
 ```
 forge script script/DeployGovernors.s.sol:DeployGovernors --broadcast --slow --rpc-url optimism --verify -vvvv
 ```
-5.  Update the governor addresses on v2.  This needs to be done by the v2 `escrow.team()` address.  Within v2 `voter`:
+6.  Update the governor addresses on v2.  This needs to be done by the v2 `escrow.team()` address.  Within v2 `voter`:
  - call `setEpochGovernor()` using the `EpochGovernor` address located in `script/constants/output/{OUTPUT_FILENAME}`
  - call `setGovernor()` using the `Governor` address located in the same file.
 
-6. Accept governor vetoer status.  This also needs to be done by the v2 `escrow.team()` address.  Within the deployed `Governor` contract call `acceptVetoer()`.
+7. Accept governor vetoer status.  This also needs to be done by the v2 `escrow.team()` address.  Within the deployed `Governor` contract call `acceptVetoer()`.

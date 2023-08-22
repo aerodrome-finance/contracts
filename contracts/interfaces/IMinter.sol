@@ -7,16 +7,31 @@ import {IVotingEscrow} from "./IVotingEscrow.sol";
 import {IRewardsDistributor} from "./IRewardsDistributor.sol";
 
 interface IMinter {
+    struct AirdropParams {
+        // List of addresses to receive Liquid Tokens from the airdrop
+        address[] liquidWallets;
+        // List of amounts of Liquid Tokens to be issued
+        uint256[] liquidAmounts;
+        // List of addresses to receive Locked NFTs from the airdrop
+        address[] lockedWallets;
+        // List of amounts of Locked NFTs to be issued
+        uint256[] lockedAmounts;
+    }
+
     error NotTeam();
     error RateTooHigh();
     error ZeroAddress();
+    error InvalidParams();
     error AlreadyNudged();
     error NotPendingTeam();
     error NotEpochGovernor();
+    error AlreadyInitialized();
     error TailEmissionsInactive();
 
     event Mint(address indexed _sender, uint256 _weekly, uint256 _circulating_supply, bool indexed _tail);
+    event DistributeLocked(address indexed _destination, uint256 _amount, uint256 _tokenId);
     event Nudge(uint256 indexed _period, uint256 _oldRate, uint256 _newRate);
+    event DistributeLiquid(address indexed _destination, uint256 _amount);
     event AcceptTeam(address indexed _newTeam);
 
     /// @notice Interface of Velo.sol
@@ -73,6 +88,9 @@ interface IMinter {
     /// @notice Number of epochs in which updatePeriod was called
     function epochCount() external view returns (uint256);
 
+    /// @notice Boolean used to verify if contract has been initialized
+    function initialized() external returns (bool);
+
     /// @dev activePeriod => proposal existing, used to enforce one proposal per epoch
     /// @param _activePeriod Timestamp of start of epoch
     /// @return True if proposal has been executed, else false
@@ -83,6 +101,10 @@ interface IMinter {
 
     /// @notice Possible team address pending approval of current team
     function pendingTeam() external view returns (address);
+
+    /// @notice Mints liquid tokens and permanently locked NFTs to the provided accounts
+    /// @param params Struct that stores the wallets and amounts for the Airdrops
+    function initialize(AirdropParams memory params) external;
 
     /// @notice Creates a request to change the current team's address
     /// @param _team Address of the new team to be chosen

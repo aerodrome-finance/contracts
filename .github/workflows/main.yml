@@ -26,7 +26,7 @@ jobs:
           forge build --sizes
 
       - name: Run tests
-        run: OUTPUT_FILENAME=ci.json CONSTANTS_FILENAME=Optimism.json forge test -vvv
+        run: OUTPUT_FILENAME=ci.json CONSTANTS_FILENAME=Optimism.json AIRDROPS_FILENAME=airdrop-ci.json forge test -vvv
         env:
           OPTIMISM_RPC_URL: ${{ secrets.OPTIMISM_RPC_URL }}
           PRIVATE_KEY_DEPLOY: ${{ secrets.PRIVATE_KEY_DEPLOY }}

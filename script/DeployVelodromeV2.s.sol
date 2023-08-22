@@ -10,16 +10,23 @@ contract DeployVelodromeV2 is Base {
     string public path;
 
     uint256 public deployPrivateKey = vm.envUint("PRIVATE_KEY_DEPLOY");
-    address public deployerAddress = vm.addr(deployPrivateKey);
+    address public deployerAddress = vm.rememberKey(deployPrivateKey);
     string public constantsFilename = vm.envString("CONSTANTS_FILENAME");
     string public outputFilename = vm.envString("OUTPUT_FILENAME");
     string public jsonConstants;
     string public jsonOutput;
 
+    uint256 public constant AIRDROPPER_BALANCE = 200_000_000 * 1e18;
+
     // Vars to be set in each deploy script
     address feeManager;
     address team;
     address emergencyCouncil;
+
+    struct AirdropInfo {
+        uint256 amount;
+        address wallet;
+    }
 
     constructor() {
         string memory root = vm.projectRoot();
@@ -49,8 +56,7 @@ contract DeployVelodromeV2 is Base {
         }
 
         // Loading output and use output path to later save deployed contracts
-        basePath = string.concat(basePath, "output/");
-        path = string.concat(basePath, "DeployVelodromeV2-");
+        path = string.concat(basePath, "output/DeployVelodromeV2-");
         path = string.concat(path, outputFilename);
 
         // start broadcasting transactions
@@ -63,6 +69,9 @@ contract DeployVelodromeV2 is Base {
     }
 
     function _deploySetupAfter() public {
+        // Initializes the Minter
+        _initializeMinter();
+
         // Set protocol state to team
         escrow.setTeam(team);
         minter.setTeam(team);
@@ -93,5 +102,61 @@ contract DeployVelodromeV2 is Base {
         vm.writeJson(vm.serializeAddress("v2", "GaugeFactory", address(gaugeFactory)), path);
         vm.writeJson(vm.serializeAddress("v2", "ManagedRewardsFactory", address(managedRewardsFactory)), path);
         vm.writeJson(vm.serializeAddress("v2", "FactoryRegistry", address(factoryRegistry)), path);
+        vm.writeJson(vm.serializeAddress("v2", "AirdropDistributor", address(airdrop)), path);
+    }
+
+    function _initializeMinter() public {
+        // Fetching Liquid Token Airdrop info, including the address of the recently deployed AirdropDistributor
+        AirdropInfo[] memory infos = abi.decode(jsonConstants.parseRaw(".minter.liquid"), (AirdropInfo[]));
+        (address[] memory liquidWallets, uint256[] memory liquidAmounts) = _getLiquidAirdropInfo(
+            address(airdrop),
+            AIRDROPPER_BALANCE,
+            infos
+        );
+
+        // Fetching Locked NFTs Airdrop info
+        infos = abi.decode(jsonConstants.parseRaw(".minter.locked"), (AirdropInfo[]));
+        (address[] memory lockedWallets, uint256[] memory lockedAmounts) = _getLockedAirdropInfo(infos);
+        // Airdrops All Tokens
+        minter.initialize(
+            IMinter.AirdropParams({
+                liquidWallets: liquidWallets,
+                liquidAmounts: liquidAmounts,
+                lockedWallets: lockedWallets,
+                lockedAmounts: lockedAmounts
+            })
+        );
+    }
+
+    function _getLiquidAirdropInfo(
+        address airdropDistributor,
+        uint256 distributorAmount,
+        AirdropInfo[] memory infos
+    ) public pure returns (address[] memory wallets, uint256[] memory amounts) {
+        uint256 len = infos.length + 1;
+        wallets = new address[](len);
+        amounts = new uint256[](len);
+        wallets[0] = airdropDistributor;
+        amounts[0] = distributorAmount;
+
+        for (uint256 i = 1; i < len; i++) {
+            AirdropInfo memory drop = infos[i - 1];
+            wallets[i] = drop.wallet;
+            amounts[i] = drop.amount;
+        }
+    }
+
+    function _getLockedAirdropInfo(
+        AirdropInfo[] memory infos
+    ) public pure returns (address[] memory wallets, uint256[] memory amounts) {
+        uint256 len = infos.length;
+        wallets = new address[](len);
+        amounts = new uint256[](len);
+
+        for (uint256 i = 0; i < len; i++) {
+            AirdropInfo memory drop = infos[i];
+            wallets[i] = drop.wallet;
+            amounts[i] = drop.amount;
+        }
     }
 }

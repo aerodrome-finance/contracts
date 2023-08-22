@@ -1,0 +1,24 @@
+{
+    "airdrop": [
+        {
+            "amount": 1000000000000,
+            "wallet": "0x262595fa2a3A86adACDe208589614d483e3eF1C0"
+        },
+        {
+            "amount": 2000,
+            "wallet": "0x64492E25C30031EDAD55E57cEA599CDB1F06dad1"
+        },
+        {
+            "amount": 3000,
+            "wallet": "0x924Ba5Ce9f91ddED37b4ebf8c0dc82A40202fc0A"
+        },
+        {
+            "amount": 4000,
+            "wallet": "0x265188114EB5d5536BC8654d8e9710FE72C28c4d"
+        },
+        {
+            "amount": 5000,
+            "wallet": "0x73B3074ac649A8dc31c2C90a124469456301a30F"
+        }
+    ]
+}

@@ -141,6 +141,12 @@ owner of the veNFT.
 
 ve(NFT) art proxy contract, exists for upgradability purposes.
 
+## AirdropDistributor
+The Airdrop distribution contract handles the emissions of permanently locked veNFTs.
+These distributions can only be emitted by its deployer and its parameters are in the form of
+arrays of addresses and amounts, which are later paired together and used to distribute each
+amount to its corresponding address.
+
 ## Protocol
 
 ### Voter
