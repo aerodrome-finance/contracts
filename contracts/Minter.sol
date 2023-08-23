@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {IMinter} from "./interfaces/IMinter.sol";
 import {IRewardsDistributor} from "./interfaces/IRewardsDistributor.sol";
-import {IVelo} from "./interfaces/IVelo.sol";
+import {IAero} from "./interfaces/IAero.sol";
 import {IVoter} from "./interfaces/IVoter.sol";
 import {IVotingEscrow} from "./interfaces/IVotingEscrow.sol";
 import {IEpochGovernor} from "./interfaces/IEpochGovernor.sol";
@@ -12,11 +12,11 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 /// @title Minter
 /// @author velodrome.finance, @figs999, @pegahcarter
-/// @notice Controls minting of emissions and rebases for Velodrome
+/// @notice Controls minting of emissions and rebases for the Protocol
 contract Minter is IMinter {
-    using SafeERC20 for IVelo;
+    using SafeERC20 for IAero;
     /// @inheritdoc IMinter
-    IVelo public immutable velo;
+    IAero public immutable aero;
     /// @inheritdoc IMinter
     IVoter public immutable voter;
     /// @inheritdoc IMinter
@@ -66,7 +66,7 @@ contract Minter is IMinter {
         address _ve, // the ve(3,3) system that will be locked into
         address _rewardsDistributor // the distribution system that ensures users aren't diluted
     ) {
-        velo = IVelo(IVotingEscrow(_ve).token());
+        aero = IAero(IVotingEscrow(_ve).token());
         voter = IVoter(_voter);
         ve = IVotingEscrow(_ve);
         team = msg.sender;
@@ -87,7 +87,7 @@ contract Minter is IMinter {
         // Liquid Token Mint
         uint256 _len = params.liquidWallets.length;
         for (uint256 i = 0; i < _len; i++) {
-            velo.mint(params.liquidWallets[i], params.liquidAmounts[i]);
+            aero.mint(params.liquidWallets[i], params.liquidAmounts[i]);
             emit DistributeLiquid(params.liquidWallets[i], params.liquidAmounts[i]);
         }
 
@@ -98,15 +98,15 @@ contract Minter is IMinter {
             _sum += params.lockedAmounts[i];
         }
         uint256 _tokenId;
-        velo.mint(address(this), _sum);
-        velo.safeApprove(address(ve), _sum);
+        aero.mint(address(this), _sum);
+        aero.safeApprove(address(ve), _sum);
         for (uint256 i = 0; i < _len; i++) {
             _tokenId = ve.createLock(params.lockedAmounts[i], WEEK);
             ve.lockPermanent(_tokenId);
             ve.safeTransferFrom(address(this), params.lockedWallets[i], _tokenId);
             emit DistributeLocked(params.lockedWallets[i], params.lockedAmounts[i], _tokenId);
         }
-        velo.safeApprove(address(ve), 0);
+        aero.safeApprove(address(ve), 0);
     }
 
     /// @inheritdoc IMinter
@@ -134,9 +134,9 @@ contract Minter is IMinter {
     /// @inheritdoc IMinter
     function calculateGrowth(uint256 _minted) public view returns (uint256 _growth) {
         uint256 _veTotal = ve.totalSupplyAt(activePeriod - 1);
-        uint256 _veloTotal = velo.totalSupply();
+        uint256 _aeroTotal = aero.totalSupply();
 
-        return (((_minted * (_veloTotal - _veTotal)) / _veloTotal) * (_veloTotal - _veTotal)) / _veloTotal / 2;
+        return (((_minted * (_aeroTotal - _veTotal)) / _aeroTotal) * (_aeroTotal - _veTotal)) / _aeroTotal / 2;
     }
 
     /// @inheritdoc IMinter
@@ -171,7 +171,7 @@ contract Minter is IMinter {
             activePeriod = _period;
             uint256 _weekly = weekly;
             uint256 _emission;
-            uint256 _totalSupply = velo.totalSupply();
+            uint256 _totalSupply = aero.totalSupply();
             bool _tail = _weekly < TAIL_START;
 
             if (_tail) {
@@ -192,19 +192,19 @@ contract Minter is IMinter {
             uint256 _teamEmissions = (_rate * (_growth + _weekly)) / (MAX_BPS - _rate);
 
             uint256 _required = _growth + _emission + _teamEmissions;
-            uint256 _balanceOf = velo.balanceOf(address(this));
+            uint256 _balanceOf = aero.balanceOf(address(this));
             if (_balanceOf < _required) {
-                velo.mint(address(this), _required - _balanceOf);
+                aero.mint(address(this), _required - _balanceOf);
             }
 
-            velo.safeTransfer(address(team), _teamEmissions);
-            velo.safeTransfer(address(rewardsDistributor), _growth);
+            aero.safeTransfer(address(team), _teamEmissions);
+            aero.safeTransfer(address(rewardsDistributor), _growth);
             rewardsDistributor.checkpointToken(); // checkpoint token balance that was just minted in rewards distributor
 
-            velo.safeApprove(address(voter), _emission);
+            aero.safeApprove(address(voter), _emission);
             voter.notifyRewardAmount(_emission);
 
-            emit Mint(msg.sender, _emission, velo.totalSupply(), _tail);
+            emit Mint(msg.sender, _emission, aero.totalSupply(), _tail);
         }
     }
 }

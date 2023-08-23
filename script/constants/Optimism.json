@@ -84,7 +84,7 @@
         "0x10010078a54396F62c96dF8532dc2B4847d47ED3",
         "0x61BAADcF22d2565B0F471b291C475db5555e0b76"
     ],
-    "poolsV2": [
+    "pools": [
         {
             "stable": true,
             "tokenA": "0x3E29D3A9316dAB217754d13b28646B76607c5f04",
@@ -461,7 +461,7 @@
             "tokenB": "0x61BAADcF22d2565B0F471b291C475db5555e0b76"
         }
     ],
-    "poolsVeloV2": [
+    "poolsAero": [
         {
             "stable": true,
             "tokenB": "0x46f21fDa29F1339e0aB543763FF683D399e393eC"
@@ -484,7 +484,7 @@
         }
     ],
     "v1": {
-        "VELO": "0x3c8B650257cFb5f272f799F5e2b4e65093a11a05",
+        "AERO": "0x3c8B650257cFb5f272f799F5e2b4e65093a11a05",
         "VotingEscrow": "0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26",
         "Voter": "0x09236cfF45047DBee6B921e00704bed6D6B8Cf7e",
         "Factory": "0x25CbdDb98b35ab1FF77413456B31EC81A6B6B746",

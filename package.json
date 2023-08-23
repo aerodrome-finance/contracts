@@ -1,7 +1,7 @@
 {
-  "name": "velodrome",
+  "name": "aerodrome",
   "version": "2.0.0",
-  "description": "Base layer AMM on Optimism",
+  "description": "Base layer AMM on EVMs",
   "directories": {
     "lib": "lib"
   },

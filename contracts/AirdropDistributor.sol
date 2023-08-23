@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.19;
 
-import {IVelo} from "./interfaces/IVelo.sol";
+import {IAero} from "./interfaces/IAero.sol";
 import {IVotingEscrow} from "./interfaces/IVotingEscrow.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IAirdropDistributor} from "./interfaces/IAirdropDistributor.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract AirdropDistributor is IAirdropDistributor, Ownable {
-    using SafeERC20 for IVelo;
+    using SafeERC20 for IAero;
     /// @inheritdoc IAirdropDistributor
-    IVelo public immutable velo;
+    IAero public immutable aero;
     /// @inheritdoc IAirdropDistributor
     IVotingEscrow public immutable ve;
 
     constructor(address _ve) {
         ve = IVotingEscrow(_ve);
-        velo = IVelo(IVotingEscrow(_ve).token());
+        aero = IAero(IVotingEscrow(_ve).token());
     }
 
     /// @inheritdoc IAirdropDistributor
@@ -28,8 +28,8 @@ contract AirdropDistributor is IAirdropDistributor, Ownable {
             _sum += _amounts[i];
         }
 
-        if (_sum > velo.balanceOf(address(this))) revert InsufficientBalance();
-        velo.safeApprove(address(ve), _sum);
+        if (_sum > aero.balanceOf(address(this))) revert InsufficientBalance();
+        aero.safeApprove(address(ve), _sum);
         address _wallet;
         uint256 _amount;
         uint256 _tokenId;
@@ -41,6 +41,6 @@ contract AirdropDistributor is IAirdropDistributor, Ownable {
             ve.safeTransferFrom(address(this), _wallet, _tokenId);
             emit Airdrop(_wallet, _amount, _tokenId);
         }
-        velo.safeApprove(address(ve), 0);
+        aero.safeApprove(address(ve), 0);
     }
 }

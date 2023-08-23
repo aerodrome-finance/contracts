@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.19;
 
-import {IVelo} from "./interfaces/IVelo.sol";
+import {IAero} from "./interfaces/IAero.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
-/// @title Velo
+/// @title Aero
 /// @author velodrome.finance
-/// @notice The native token in the Velodrome V2 ecosystem
+/// @notice The native token in the Protocol ecosystem
 /// @dev Emitted by the Minter
-contract Velo is IVelo, ERC20Permit {
+contract Aero is IAero, ERC20Permit {
     address public minter;
     address private owner;
 
-    constructor() ERC20("VelodromeV2", "VELO") ERC20Permit("VelodromeV2") {
+    constructor() ERC20("Aerodrome", "AERO") ERC20Permit("Aerodrome") {
         minter = msg.sender;
         owner = msg.sender;
     }

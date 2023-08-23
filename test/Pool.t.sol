@@ -18,13 +18,13 @@ contract PoolTest is BaseTest {
         amounts[0] = 2e25;
         amounts[1] = 1e25;
         amounts[2] = 1e25;
-        mintToken(address(VELO), owners, amounts);
+        mintToken(address(AERO), owners, amounts);
         mintToken(address(LR), owners, amounts);
         deployFactories();
         factory.setFee(true, 1);
         factory.setFee(false, 1);
 
-        escrow = new VotingEscrow(address(forwarder), address(VELO), address(factoryRegistry));
+        escrow = new VotingEscrow(address(forwarder), address(AERO), address(factoryRegistry));
         VeArtProxy artProxy = new VeArtProxy(address(escrow));
         escrow.setArtProxy(address(artProxy));
 
@@ -48,29 +48,29 @@ contract PoolTest is BaseTest {
     function createLock() public {
         deployPoolCoins();
 
-        VELO.approve(address(escrow), 5e17);
+        AERO.approve(address(escrow), 5e17);
         escrow.createLock(5e17, MAXTIME);
         vm.roll(block.number + 1); // fwd 1 block because escrow.balanceOfNFT() returns 0 in same block
         assertGt(escrow.balanceOfNFT(1), 495063075414519385);
-        assertEq(VELO.balanceOf(address(escrow)), 5e17);
+        assertEq(AERO.balanceOf(address(escrow)), 5e17);
     }
 
     function increaseLock() public {
         createLock();
 
-        VELO.approve(address(escrow), 5e17);
+        AERO.approve(address(escrow), 5e17);
         escrow.increaseAmount(1, 5e17);
         vm.expectRevert(IVotingEscrow.LockDurationNotInFuture.selector);
         escrow.increaseUnlockTime(1, MAXTIME);
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
-        assertEq(VELO.balanceOf(address(escrow)), TOKEN_1);
+        assertEq(AERO.balanceOf(address(escrow)), TOKEN_1);
     }
 
     function votingEscrowViews() public {
         increaseLock();
 
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
-        assertEq(VELO.balanceOf(address(escrow)), TOKEN_1);
+        assertEq(AERO.balanceOf(address(escrow)), TOKEN_1);
     }
 
     function stealNFT() public {
@@ -89,10 +89,10 @@ contract PoolTest is BaseTest {
     function votingEscrowMerge() public {
         stealNFT();
 
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.createLock(TOKEN_1, MAXTIME);
         assertGt(escrow.balanceOfNFT(2), 995063075414519385);
-        assertEq(VELO.balanceOf(address(escrow)), 2 * TOKEN_1);
+        assertEq(AERO.balanceOf(address(escrow)), 2 * TOKEN_1);
 
         escrow.merge(2, 1);
         assertGt(escrow.balanceOfNFT(1), 1990063075414519385);
@@ -104,10 +104,10 @@ contract PoolTest is BaseTest {
         assertEq(locked.amount, 0);
         assertEq(escrow.ownerOf(2), address(0));
 
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.createLock(TOKEN_1, MAXTIME);
         assertGt(escrow.balanceOfNFT(3), 995063075414519385);
-        assertEq(VELO.balanceOf(address(escrow)), 3 * TOKEN_1);
+        assertEq(AERO.balanceOf(address(escrow)), 3 * TOKEN_1);
 
         escrow.merge(3, 1);
         assertGt(escrow.balanceOfNFT(1), 1990063075414519385);
@@ -278,12 +278,12 @@ contract PoolTest is BaseTest {
 
         minter = new Minter(address(voter), address(escrow), address(distributor));
         distributor.setMinter(address(minter));
-        VELO.setMinter(address(minter));
+        AERO.setMinter(address(minter));
         address[] memory tokens = new address[](5);
         tokens[0] = address(USDC);
         tokens[1] = address(FRAX);
         tokens[2] = address(DAI);
-        tokens[3] = address(VELO);
+        tokens[3] = address(AERO);
         tokens[4] = address(LR);
         voter.initialize(tokens, address(minter));
     }
@@ -291,7 +291,7 @@ contract PoolTest is BaseTest {
     function deployPoolFactoryGauge() public {
         deployMinter();
 
-        VELO.approve(address(gaugeFactory), 15 * TOKEN_100K);
+        AERO.approve(address(gaugeFactory), 15 * TOKEN_100K);
         voter.createGauge(address(factory), address(pool));
         voter.createGauge(address(factory), address(pool2));
         voter.createGauge(address(factory), address(pool3));
@@ -352,9 +352,9 @@ contract PoolTest is BaseTest {
 
         _addRewardToGauge(address(voter), address(gauge), POOL_1);
 
-        VELO.approve(address(bribeVotingReward), POOL_1);
+        AERO.approve(address(bribeVotingReward), POOL_1);
 
-        bribeVotingReward.notifyRewardAmount(address(VELO), POOL_1);
+        bribeVotingReward.notifyRewardAmount(address(AERO), POOL_1);
 
         assertEq(gauge.rewardRate(), 1653);
     }
@@ -387,11 +387,11 @@ contract PoolTest is BaseTest {
     function createLock2() public {
         voterPokeSelf();
 
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.createLock(TOKEN_1, MAXTIME);
         skip(1);
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
-        assertEq(VELO.balanceOf(address(escrow)), 4 * TOKEN_1);
+        assertEq(AERO.balanceOf(address(escrow)), 4 * TOKEN_1);
     }
 
     function voteHacking() public {
@@ -481,10 +481,10 @@ contract PoolTest is BaseTest {
     function gaugeDistributeBasedOnVoting() public {
         gaugePokeHacking3();
 
-        deal(address(VELO), address(minter), POOL_1);
+        deal(address(AERO), address(minter), POOL_1);
 
         vm.startPrank(address(minter));
-        VELO.approve(address(voter), POOL_1);
+        AERO.approve(address(voter), POOL_1);
         voter.notifyRewardAmount(POOL_1);
         vm.stopPrank();
 
@@ -496,7 +496,7 @@ contract PoolTest is BaseTest {
         gaugeDistributeBasedOnVoting();
 
         address[] memory rewards = new address[](1);
-        rewards[0] = address(VELO);
+        rewards[0] = address(AERO);
         feesVotingReward.getReward(1, rewards);
         skip(8 days);
         vm.roll(block.number + 1);
@@ -598,12 +598,12 @@ contract PoolTest is BaseTest {
         skip(1);
         gauge.deposit(POOL_1);
         skip(1);
-        uint256 before = VELO.balanceOf(address(owner));
+        uint256 before = AERO.balanceOf(address(owner));
         skip(1);
         uint256 earned = gauge.earned(address(owner));
         gauge.getReward(address(owner));
         skip(1);
-        uint256 after_ = VELO.balanceOf(address(owner));
+        uint256 after_ = AERO.balanceOf(address(owner));
         uint256 received = after_ - before;
         assertEq(earned, received);
 
@@ -760,10 +760,10 @@ contract PoolTest is BaseTest {
         owner3.withdrawGauge(address(gauge), gauge.balanceOf(address(owner3)));
         owner3.approve(address(pool), address(gauge), POOL_1);
         owner3.deposit(address(gauge), POOL_1);
-        uint256 before = VELO.balanceOf(address(owner3));
+        uint256 before = AERO.balanceOf(address(owner3));
         skip(1);
         owner3.getGaugeReward(address(gauge), address(owner3));
-        uint256 after_ = VELO.balanceOf(address(owner3));
+        uint256 after_ = AERO.balanceOf(address(owner3));
         uint256 received = after_ - before;
         assertGt(received, 0);
 
@@ -792,7 +792,7 @@ contract PoolTest is BaseTest {
         // base setup, and so they need to be deployed for these tests
         deployPoolCoins();
 
-        assertEq(pool.name(), "StableV2 AMM - USDC/FRAX");
+        assertEq(pool.name(), "Stable AMM - USDC/FRAX");
         pool.setName("Some new name");
         assertEq(pool.name(), "Some new name");
     }
@@ -808,7 +808,7 @@ contract PoolTest is BaseTest {
     function testSetPoolSymbol() external {
         deployPoolCoins();
 
-        assertEq(pool.symbol(), "sAMMV2-USDC/FRAX");
+        assertEq(pool.symbol(), "sAMM-USDC/FRAX");
         pool.setSymbol("Some new symbol");
         assertEq(pool.symbol(), "Some new symbol");
     }

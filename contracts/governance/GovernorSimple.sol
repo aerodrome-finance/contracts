@@ -15,7 +15,7 @@ import {Timers} from "@openzeppelin/contracts/utils/Timers.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IGovernor} from "./IGovernor.sol";
 import {IMinter} from "../interfaces/IMinter.sol";
-import {VelodromeTimeLibrary} from "../libraries/VelodromeTimeLibrary.sol";
+import {ProtocolTimeLibrary} from "../libraries/ProtocolTimeLibrary.sol";
 
 /**
  * @dev Modified lightly from OpenZeppelin's Governor contract to support three option voting via callback.
@@ -289,7 +289,7 @@ abstract contract GovernorSimple is ERC2771Context, ERC165, EIP712, IGovernor, I
         require(calldatas.length == 1, "GovernorSimple: only one calldata allowed");
         require(bytes4(calldatas[0]) == IMinter.nudge.selector, "GovernorSimple: only nudge allowed");
 
-        bytes32 epochStart = bytes32(VelodromeTimeLibrary.epochStart(block.timestamp) + (1 weeks));
+        bytes32 epochStart = bytes32(ProtocolTimeLibrary.epochStart(block.timestamp) + (1 weeks));
         uint256 proposalId = hashProposal(targets, values, calldatas, epochStart);
 
         require(targets.length > 0, "GovernorSimple: empty proposal");
@@ -333,7 +333,7 @@ abstract contract GovernorSimple is ERC2771Context, ERC165, EIP712, IGovernor, I
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public payable virtual override returns (uint256) {
-        bytes32 epochStart = bytes32(VelodromeTimeLibrary.epochStart(block.timestamp));
+        bytes32 epochStart = bytes32(ProtocolTimeLibrary.epochStart(block.timestamp));
         uint256 proposalId = hashProposal(targets, values, calldatas, epochStart);
 
         ProposalState status = state(proposalId);

@@ -1,24 +1,24 @@
-# Velodrome V2 Access Control
+# Protocol Access Control
 ## User Roles and Abilities
 ### Anyone
-- Can swap tokens through the Velodrome DEX.
+- Can swap tokens through the Protocol DEX.
 - Can provide liquidity.
 - Can create a Normal veNFT.
-- Can deposit VELO into an existing Normal veNFT.
+- Can deposit AERO into an existing Normal veNFT.
 - Can poke the balance of an existing veNFT to sync the balance.
-- Can bribe a Velodrome liquidity pool through its' linked BribeVotingRewards contract.
+- Can bribe a liquidity pool through its' linked BribeVotingRewards contract.
 - Can skim a stable or volatile liquidity pool to rebalance the reserves.
 - Can sync a liquidity pool to record historical price
-- Can trigger the emission of VELO at the start of an epoch
+- Can trigger the emission of AERO at the start of an epoch
 - Can create a liquidity pool with two different ERC20 tokens if the pool is not already created
 - Can create a gauge for the liquidity pool if the gauge is not already created and the tokens are whitelisted
 
 ### Liquidity provider (LP)
-- Can deposit their LP token into the Velodrome gauge linked to the liquidity pool
-    - Earns VELO emissions
+- Can deposit their LP token into the Protocol gauge linked to the liquidity pool
+    - Earns AERO emissions
 
 ### veNFT Hodler
-- For a detailed breakdown refer to [VOTINGESCROW.md](https://github.com/velodrome-finance/contracts/blob/contracts-v2/VOTINGESCROW.md)
+- For a detailed breakdown refer to [VOTINGESCROW.md](https://github.com/aerodrome-finance/contracts/blob/main/VOTINGESCROW.md)
 
 #### Normal, Normal Permanent, and Managed veNFT
 - Can approve/revoke an address to modify the veNFT
@@ -26,8 +26,8 @@
 - Can increase amount locked
 - Can vote weekly on pool(s)
     - Earns bribes and trading fees
-    - Earns weekly distribution of VELO rebases
-- Can vote on VeloGovernor proposals
+    - Earns weekly distribution of AERO rebases
+- Can vote on ProtocolGovernor proposals
 - Can vote on EpochGovernor proposals
 
 #### Normal veNFT
@@ -50,7 +50,7 @@
 ## Admin Roles and Abilities
 ### Who
 
-#### Velodrome Team
+#### Protocol Team
  Multisig at [0xBA4BB89f4d1E66AA86B60696534892aE0cCf91F5](https://optimistic.etherscan.io/address/0xBA4BB89f4d1E66AA86B60696534892aE0cCf91F5)
 - Threshold: 3/7
 - TODO: Who owns every address?
@@ -61,28 +61,28 @@ Multisig at [0x838352F4E3992187a33a04826273dB3992Ee2b3f](https://optimistic.ethe
 - TODO: Who owns every address?
 
 #### Vetoer
-Velodrome team at deployment of VeloGovernor. At a later date, this role will be renounced.
+Protocol team at deployment of ProtocolGovernor. At a later date, this role will be renounced.
 
-#### VeloGovernor (aka. Governor)
-At first deployment, team. At a later date, this will be set to a lightly modified [Governor](https://docs.openzeppelin.com/contracts/4.x/api/governance#governor) contract from OpenZeppelin, [VeloGovernor](https://github.com/velodrome-finance/contracts/blob/contracts-v2/contracts/VeloGovernor.sol).  
+#### ProtocolGovernor (aka. Governor)
+At first deployment, team. At a later date, this will be set to a lightly modified [Governor](https://docs.openzeppelin.com/contracts/4.x/api/governance#governor) contract from OpenZeppelin, [ProtocolGovernor](https://github.com/aerodrome-finance/contracts/blob/main/contracts/ProtocolGovernor.sol).
 
 #### EpochGovernor
-At first deployment, team. Before the tail rate of emissions is reached, this will be set to [EpochGovernor](https://github.com/velodrome-finance/contracts/blob/contracts-v2/contracts/EpochGovernor.sol).
+At first deployment, team. Before the tail rate of emissions is reached, this will be set to [EpochGovernor](https://github.com/aerodrome-finance/contracts/blob/main/contracts/EpochGovernor.sol).
 
 #### Allowed Manager
 At first deployment, team. This role will likely be given to a contract so that it can create managed nfts (e.g. for autocompounders etc)
 
 #### Fee Manager
-Velodrome team
+Protocol team
 
 #### Pauser
-Velodrome team
+Protocol team
 
 #### Factory Registry Owner
-Velodrome team
+Protocol team
 
 ## Permissions List
-This is an exhaustive list of all admin permissions in Velodrome V2, sorted by the contract they are stored in.
+This is an exhaustive list of all admin permissions in the protocol, sorted by the contract they are stored in.
 
 #### [PoolFactory](https://optimistic.etherscan.io/address/0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a#code)
 - Pauser
@@ -102,11 +102,11 @@ This is an exhaustive list of all admin permissions in Velodrome V2, sorted by t
     - Can accept itself as team in Minter (requires being set as pendingTeam by previous team)
     - Can set team rate in Minter
 - EpochGovernor
-    - Can nudge the Minter to adjust the VELO emissions rate.
+    - Can nudge the Minter to adjust the AERO emissions rate.
 
-#### [VeloGovernor](TODO: live etherscan link)
+#### [ProtocolGovernor](TODO: live etherscan link)
 - Vetoer
-    - Can set vetoer in VeloGovernor.
+    - Can set vetoer in ProtocolGovernor.
     - Can veto proposals.
     - Can renounce vetoer role.
 
@@ -122,7 +122,7 @@ This is an exhaustive list of all admin permissions in Velodrome V2, sorted by t
     - Can set allowedManager in VotingEscrow.
     - Can activate or deactivate managed NFTs in VotingEscrow.
 - EpochGovernor
-    - Can execute one proposal per epoch to adjust the VELO emission rate after the tail emission rate has been reached in Minter.
+    - Can execute one proposal per epoch to adjust the AERO emission rate after the tail emission rate has been reached in Minter.
 - EmergencyCouncil
     - Can set emergencyCouncil in Voter.
     - Can kill a gauge.
@@ -136,20 +136,20 @@ This is an exhaustive list of all admin permissions in Velodrome V2, sorted by t
     - Can set artProxy in VotingEscrow.
     - Can enable split functionality for a single address.
     - Can enable split functionality for all addresses.
-    - Can set proposalNumerator in VeloGovernor.
+    - Can set proposalNumerator in ProtocolGovernor.
 - AllowedManager
     - Can create managed NFTs in VotingEscrow.
 
 
 ## Contract Roles and Abilities
-In addition to defined admin roles, various contracts within Velodrome protocol have unique permissions in calling other contracts.  These permissions are immutable.
+In addition to defined admin roles, various contracts within the protocol have unique permissions in calling other contracts.  These permissions are immutable.
 
 #### [Minter](https://optimistic.etherscan.io/address/0x6dc9E1C04eE59ed3531d73a72256C0da46D10982#code)
-- Can mint VELO and distribute to Voter for gauge emissions and RewardsDistributor for claimable rebases
+- Can mint AERO and distribute to Voter for gauge emissions and RewardsDistributor for claimable rebases
     - `Minter.updatePeriod()`
 
 #### [Voter](https://optimistic.etherscan.io/address/0x41C914ee0c7E1A5edCD0295623e6dC557B5aBf3C#code)
-- Can distribute VELO emissions to gauges
+- Can distribute AERO emissions to gauges
     - `Voter.distribute()`
 - Can claim fees and rewards earned by Normal veNFTs
     - `Voter.claimFees()`
@@ -172,7 +172,7 @@ In addition to defined admin roles, various contracts within Velodrome protocol 
     - `VotingEscrow.depositManaged()`
 - Can withdraw balances from `LockedManagedReward` and `FreeManagedReward`, and rewards earned from `LockedManagedReward`
     - `VotingEscrow.withdrawManaged()`
-- Can notify rewards to `LockedManagedReward`. These rewards are always in VELO.
+- Can notify rewards to `LockedManagedReward`. These rewards are always in AERO.
     - `VotingEscrow.increaseAmount()`
     - `VotingEscrow.depositFor()`
 

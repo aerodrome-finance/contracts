@@ -20,7 +20,7 @@ contract DelegateTest is ExtendedBaseTest {
         // user points:         1 | 0 | 0 | 0 | 0
         // voting checkpoints:  1 | 0 | 0 | 0 | 0
         // global point epoch:  1
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         escrow.createLock(TOKEN_1, MAXTIME); // 1
 
         locked = escrow.locked(1);
@@ -64,7 +64,7 @@ contract DelegateTest is ExtendedBaseTest {
         // voting checkpoints:  1 | 1 | 0 | 0 | 0
         // global point epoch:  1
         vm.startPrank(address(owner2));
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         escrow.createLock(TOKEN_1, MAXTIME); // 2
         vm.stopPrank();
 
@@ -318,7 +318,7 @@ contract DelegateTest is ExtendedBaseTest {
         // voting checkpoints:  1 | 1 | 1 | 0 | 0
         // global point epoch:  2
         vm.startPrank(address(owner3));
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         escrow.createLock(TOKEN_1, MAXTIME); // 3
         vm.stopPrank();
 
@@ -645,10 +645,10 @@ contract DelegateTest is ExtendedBaseTest {
         // user points:         2 | 3 | 2 | 0 | 0
         // voting checkpoints:  2 | 3 | 5 | 0 | 0
         // global point epoch:  214
-        uint256 balance = VELO.balanceOf(address(owner3));
+        uint256 balance = AERO.balanceOf(address(owner3));
         vm.prank(address(owner3));
         escrow.withdraw(3);
-        assertEq(VELO.balanceOf(address(owner3)) - balance, TOKEN_1);
+        assertEq(AERO.balanceOf(address(owner3)) - balance, TOKEN_1);
 
         locked = escrow.locked(3);
         assertEq(convert(locked.amount), 0);

@@ -14,8 +14,8 @@ contract OracleTest is BaseTest {
         mintStables();
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 1e25;
-        mintToken(address(VELO), owners, amounts);
-        escrow = VotingEscrow(address(VELO));
+        mintToken(address(AERO), owners, amounts);
+        escrow = VotingEscrow(address(AERO));
     }
 
     function confirmTokensForFraxUsdc() public {
@@ -24,7 +24,7 @@ contract OracleTest is BaseTest {
         factory.setFee(true, 1);
         factory.setFee(false, 1);
 
-        escrow = new VotingEscrow(address(forwarder), address(VELO), address(factoryRegistry));
+        escrow = new VotingEscrow(address(forwarder), address(AERO), address(factoryRegistry));
         VeArtProxy artProxy = new VeArtProxy(address(escrow));
         escrow.setArtProxy(address(artProxy));
         voter = new Voter(address(forwarder), address(escrow), address(factoryRegistry));

@@ -11,7 +11,7 @@ contract MinterTest is BaseTest {
     event Nudge(uint256 indexed _period, uint256 _oldRate, uint256 _newRate);
 
     function _setUp() public override {
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         skip(1);
 
@@ -101,7 +101,7 @@ contract MinterTest is BaseTest {
 
     function testTailEmissionWhenWeeklyEmissionDecaysBelowTailStart() public {
         skipToNextEpoch(1);
-        assertEq(VELO.balanceOf(address(voter)), 0);
+        assertEq(AERO.balanceOf(address(voter)), 0);
 
         // 9_059_747 * 1e18 ~= approximate weekly value after 67 epochs
         // (last epoch prior to tail emissions kicking in)
@@ -113,14 +113,14 @@ contract MinterTest is BaseTest {
         minter.updatePeriod();
         // epoch threshold for tail start
         assertApproxEqAbs(minter.weekly(), 8_969_149 * TOKEN_1, TOKEN_1);
-        assertApproxEqRel(VELO.balanceOf(address(voter)), 9_059_747 * TOKEN_1, 1e12);
+        assertApproxEqRel(AERO.balanceOf(address(voter)), 9_059_747 * TOKEN_1, 1e12);
         voter.distribute(0, voter.length());
 
         skipToNextEpoch(1);
         // totalSupply ~= 65_429_708 * 1e18
         // expected mint = totalSupply * .67% ~= 8_969_149
         minter.updatePeriod();
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 430_810 * 1e18, TOKEN_1);
+        assertApproxEqAbs(AERO.balanceOf(address(voter)), 430_810 * 1e18, TOKEN_1);
         assertLt(minter.weekly(), minter.TAIL_START());
     }
 
@@ -276,12 +276,12 @@ contract MinterTest is BaseTest {
         minter.updatePeriod();
         assertEq(minter.weekly(), 10 * TOKEN_1M); // 10M
 
-        uint256 pre = VELO.balanceOf(address(voter));
+        uint256 pre = AERO.balanceOf(address(voter));
         skipToNextEpoch(1);
         minter.updatePeriod();
         assertEq(distributor.claimable(tokenId), 4999991534325080005726385);
         // emissions decay by 1% after one epoch
-        uint256 post = VELO.balanceOf(address(voter));
+        uint256 post = AERO.balanceOf(address(voter));
         assertEq(post - pre, (10 * TOKEN_1M));
         assertEq(minter.weekly(), ((10 * TOKEN_1M) * 103) / 100);
 
@@ -289,7 +289,7 @@ contract MinterTest is BaseTest {
         skipToNextEpoch(1);
         vm.roll(block.number + 1);
         minter.updatePeriod();
-        post = VELO.balanceOf(address(voter));
+        post = AERO.balanceOf(address(voter));
 
         // check rebase accumulated
         assertEq(distributor.claimable(1), 10149991131702758598187944);

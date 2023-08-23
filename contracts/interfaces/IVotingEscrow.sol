@@ -156,7 +156,7 @@ interface IVotingEscrow is IVotes, IERC4906, IERC6372, IERC721Metadata {
     /// @notice Address of FactoryRegistry.sol
     function factoryRegistry() external view returns (address);
 
-    /// @notice Address of token (VELO) used to create a veNFT
+    /// @notice Address of token (AERO) used to create a veNFT
     function token() external view returns (address);
 
     /// @notice Address of RewardsDistributor.sol
@@ -165,7 +165,7 @@ interface IVotingEscrow is IVotes, IERC4906, IERC6372, IERC721Metadata {
     /// @notice Address of Voter.sol
     function voter() external view returns (address);
 
-    /// @notice Address of Velodrome Team multisig
+    /// @notice Address of Protocol Team multisig
     function team() external view returns (address);
 
     /// @notice Address of art proxy used for on-chain art generation

@@ -3,8 +3,8 @@ pragma solidity 0.8.19;
 
 import "forge-std/Test.sol";
 import "forge-std/StdJson.sol";
-import "../script/DeployVelodromeV2.s.sol";
-import "../script/DeployGaugesAndPoolsV2.s.sol";
+import "../script/DeployCore.s.sol";
+import "../script/DeployGaugesAndPools.s.sol";
 import {SafeCastLibrary} from "../contracts/libraries/SafeCastLibrary.sol";
 
 import "./BaseTest.sol";
@@ -27,7 +27,7 @@ contract MinterAirdrop is BaseTest {
             WALLET_NUMBER,
             TOKEN_100K
         );
-        uint256 preVeloBal = VELO.balanceOf(address(this));
+        uint256 preAeroBal = AERO.balanceOf(address(this));
 
         // Expects all events from the airdrop
         uint256 liquidLen = liquidWallets.length;
@@ -54,7 +54,7 @@ contract MinterAirdrop is BaseTest {
         assertTrue(minter.initialized());
         // Ensures Liquid Tokens were minted correctly
         for (uint256 i = 0; i < liquidLen; i++) {
-            assertEq(VELO.balanceOf(liquidWallets[i]), liquidAmounts[i]);
+            assertEq(AERO.balanceOf(liquidWallets[i]), liquidAmounts[i]);
         }
         // Ensures permanently locked NFTs were distributed correctly
         for (uint256 i = 0; i < lockedLen; i++) {
@@ -66,13 +66,13 @@ contract MinterAirdrop is BaseTest {
             assertEq(locked.end, 0);
         }
         // Minter balance remains unchanged
-        assertEq(VELO.balanceOf(address(this)), preVeloBal);
+        assertEq(AERO.balanceOf(address(this)), preAeroBal);
         assertEq(escrow.balanceOf(address(this)), 0);
     }
 
-    function testInitializeVeloAirdrop() public {
+    function testInitializeAeroAirdrop() public {
         (address[] memory wallets, uint256[] memory amounts) = _getWalletsAmounts(WALLET_NUMBER, TOKEN_1M);
-        uint256 preVeloBal = VELO.balanceOf(address(this));
+        uint256 preAeroBal = AERO.balanceOf(address(this));
 
         uint256 len = wallets.length;
         // Expects all events to be emitted
@@ -94,16 +94,16 @@ contract MinterAirdrop is BaseTest {
         assertTrue(minter.initialized());
         // Ensures tokens were minted correctly
         for (uint256 i = 0; i < len; i++) {
-            assertEq(VELO.balanceOf(wallets[i]), amounts[i]);
+            assertEq(AERO.balanceOf(wallets[i]), amounts[i]);
         }
         // Minter balance remains unchanged
-        assertEq(VELO.balanceOf(address(this)), preVeloBal);
+        assertEq(AERO.balanceOf(address(this)), preAeroBal);
         assertEq(escrow.balanceOf(address(this)), 0);
     }
 
     function testInitializeVeAirdrop() public {
         (address[] memory wallets, uint256[] memory amounts) = _getWalletsAmounts(WALLET_NUMBER, TOKEN_100K);
-        uint256 preVeloBal = VELO.balanceOf(address(this));
+        uint256 preAeroBal = AERO.balanceOf(address(this));
 
         uint256 len = wallets.length;
         // Expects all events to be emitted
@@ -134,7 +134,7 @@ contract MinterAirdrop is BaseTest {
             assertEq(locked.end, 0);
         }
         // Minter balance remains unchanged
-        assertEq(VELO.balanceOf(address(this)), preVeloBal);
+        assertEq(AERO.balanceOf(address(this)), preAeroBal);
         assertEq(escrow.balanceOf(address(this)), 0);
     }
 

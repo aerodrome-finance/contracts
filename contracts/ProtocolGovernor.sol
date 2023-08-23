@@ -10,12 +10,17 @@ import {VetoGovernorCountingSimple} from "./governance/VetoGovernorCountingSimpl
 import {VetoGovernorVotes} from "./governance/VetoGovernorVotes.sol";
 import {VetoGovernorVotesQuorumFraction} from "./governance/VetoGovernorVotesQuorumFraction.sol";
 
-/// @title VeloGovernor
+/// @title ProtocolGovernor
 /// @author velodrome.finance, @figs999, @pegahcarter
-/// @notice Velodrome V2 governance with timestamp-based voting power from VotingEscrow NFTs
+/// @notice Protocol governance with timestamp-based voting power from VotingEscrow NFTs
 ///         Supports vetoing of proposals as mitigation for 51% attacks
 ///         Votes are cast and counted on a per tokenId basis
-contract VeloGovernor is VetoGovernor, VetoGovernorCountingSimple, VetoGovernorVotes, VetoGovernorVotesQuorumFraction {
+contract ProtocolGovernor is
+    VetoGovernor,
+    VetoGovernorCountingSimple,
+    VetoGovernorVotes,
+    VetoGovernorVotesQuorumFraction
+{
     address public immutable ve;
     address public vetoer;
     address public pendingVetoer;
@@ -32,7 +37,7 @@ contract VeloGovernor is VetoGovernor, VetoGovernorCountingSimple, VetoGovernorV
     constructor(
         IVotes _ve
     )
-        VetoGovernor("Velodrome Governor")
+        VetoGovernor("Protocol Governor")
         VetoGovernorVotes(_ve)
         VetoGovernorVotesQuorumFraction(4) // 4%
     {

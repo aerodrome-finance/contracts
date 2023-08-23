@@ -81,7 +81,7 @@ contract ManagedNftTest is BaseTest {
     function testCannotDepositManagedIfNotVoter() public {
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         assertEq(escrow.locked(tokenId).end, 126403200);
 
@@ -93,7 +93,7 @@ contract ManagedNftTest is BaseTest {
     function testCannotDepositManagedUntilAfterDistributeWindow() public {
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2)); // 1
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME); // 2
         assertEq(escrow.locked(tokenId).end, 126403200);
 
@@ -116,7 +116,7 @@ contract ManagedNftTest is BaseTest {
     function testDepositManagedWithNormalNFT() public {
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         assertEq(escrow.locked(tokenId).end, 126403200);
         assertEq(escrow.slopeChanges(126403200), -7927447995);
@@ -204,7 +204,7 @@ contract ManagedNftTest is BaseTest {
     function testDepositManagedWithDelegatingManagedNFT() public {
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         uint256 tokenId2 = escrow.createLock(TOKEN_1, MAXTIME);
         vm.prank(address(owner2));
@@ -302,7 +302,7 @@ contract ManagedNftTest is BaseTest {
     function testDepositManagedWithPermanentLock() public {
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         assertEq(escrow.locked(tokenId).end, 126403200);
         uint256 supply = escrow.supply();
@@ -385,11 +385,11 @@ contract ManagedNftTest is BaseTest {
     function testDepositManagedWithDelegatingPermanentLock() public {
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         escrow.lockPermanent(tokenId); // no slope change contribution
         vm.startPrank(address(owner2));
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId2 = escrow.createLock(TOKEN_1, MAXTIME);
         uint256 supply = escrow.supply();
         vm.stopPrank();
@@ -487,7 +487,7 @@ contract ManagedNftTest is BaseTest {
     }
 
     function testCannotDepositManagedIntoNonManagedNft() public {
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         escrow.createLock(TOKEN_1, MAXTIME);
         escrow.createLock(TOKEN_1, MAXTIME);
         skipAndRoll(1 hours);
@@ -508,7 +508,7 @@ contract ManagedNftTest is BaseTest {
     function testCannotDepositManagedWithAlreadyLockedNft() public {
         uint256 mTokenId = escrow.createManagedLockFor(address(owner));
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         skipAndRoll(1 hours);
 
@@ -523,7 +523,7 @@ contract ManagedNftTest is BaseTest {
     function testCannotDepositManagedWithAlreadyVotedNft() public {
         skip(1 hours + 1);
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         escrow.createLock(TOKEN_1, MAXTIME);
 
         // vote
@@ -542,7 +542,7 @@ contract ManagedNftTest is BaseTest {
     }
 
     function testCannotDepositManagedWithExpiredNft() public {
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, 1 weeks);
         uint256 mTokenId = escrow.createManagedLockFor(address(owner));
 
@@ -555,7 +555,7 @@ contract ManagedNftTest is BaseTest {
     function testCannotWithdrawManagedIfNotLocked() public {
         skipAndRoll(1 hours);
         escrow.createManagedLockFor(address(owner));
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
 
         vm.expectRevert(IVotingEscrow.InvalidManagedNFTId.selector);
@@ -566,7 +566,7 @@ contract ManagedNftTest is BaseTest {
         skipAndRoll(1 hours);
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
         escrow.createManagedLockFor(address(owner));
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
 
         voter.depositManaged(tokenId, mTokenId);
@@ -580,7 +580,7 @@ contract ManagedNftTest is BaseTest {
     function testCannotWithdrawManagedUntilAfterDistributeWindow() public {
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2)); // 1
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME); // 2
         assertEq(escrow.locked(tokenId).end, 126403200);
 
@@ -608,7 +608,7 @@ contract ManagedNftTest is BaseTest {
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
 
         // deposit two normal veNFTS
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         uint256 tokenId2 = escrow.createLock(TOKEN_1, MAXTIME);
         voter.depositManaged(tokenId, mTokenId);
@@ -639,7 +639,7 @@ contract ManagedNftTest is BaseTest {
     function testDepositManagedWithFlashProtection() public {
         skip(1 hours);
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         uint256 tokenId2 = escrow.createLock(TOKEN_1, MAXTIME);
         voter.depositManaged(tokenId, mTokenId);
@@ -667,7 +667,7 @@ contract ManagedNftTest is BaseTest {
     function testWithdrawManagedResetsLastVotedOnce() public {
         skip(1 hours);
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         uint256 tokenId2 = escrow.createLock(TOKEN_1, MAXTIME);
         voter.depositManaged(tokenId, mTokenId);
@@ -724,7 +724,7 @@ contract ManagedNftTest is BaseTest {
     function testWithdrawManagedWithZeroReward() public {
         skip(1 hours);
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         voter.depositManaged(tokenId, mTokenId);
         uint256 supply = escrow.supply();
@@ -807,19 +807,19 @@ contract ManagedNftTest is BaseTest {
     function testWithdrawManagedWithLockedReward() public {
         skip(1 hours);
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         voter.depositManaged(tokenId, mTokenId);
 
         // locked rewards initially empty
         lockedManagedReward = LockedManagedReward(escrow.managedToLocked(mTokenId));
-        assertEq(VELO.balanceOf(address(lockedManagedReward)), 0);
+        assertEq(AERO.balanceOf(address(lockedManagedReward)), 0);
         freeManagedReward = FreeManagedReward(escrow.managedToFree(mTokenId));
-        assertEq(VELO.balanceOf(address(freeManagedReward)), 0);
+        assertEq(AERO.balanceOf(address(freeManagedReward)), 0);
 
         // simulate locked rewards (i.e. rebase / compound) via increaseAmount
         vm.startPrank(address(owner2));
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.increaseAmount(mTokenId, TOKEN_1);
         vm.stopPrank();
 
@@ -843,8 +843,8 @@ contract ManagedNftTest is BaseTest {
         assertEq(escrow.balanceOfNFT(mTokenId), TOKEN_1 * 2);
 
         assertEq(escrow.supply(), TOKEN_1 * 2);
-        assertEq(VELO.balanceOf(address(lockedManagedReward)), TOKEN_1);
-        assertEq(lockedManagedReward.tokenRewardsPerEpoch(address(VELO), 604800), TOKEN_1);
+        assertEq(AERO.balanceOf(address(lockedManagedReward)), TOKEN_1);
+        assertEq(lockedManagedReward.tokenRewardsPerEpoch(address(AERO), 604800), TOKEN_1);
 
         skipAndRoll(2 weeks);
         vm.expectEmit(true, true, true, true, address(escrow));
@@ -918,31 +918,31 @@ contract ManagedNftTest is BaseTest {
         assertEq(freeManagedReward.balanceOf(tokenId), 0);
         assertEq(freeManagedReward.totalSupply(), 0);
 
-        assertEq(VELO.balanceOf(address(escrow)), TOKEN_1 * 2);
-        assertEq(VELO.balanceOf(address(lockedManagedReward)), 0);
+        assertEq(AERO.balanceOf(address(escrow)), TOKEN_1 * 2);
+        assertEq(AERO.balanceOf(address(lockedManagedReward)), 0);
     }
 
     function testWithdrawManagedWithFreeReward() public {
         skip(1 hours);
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         voter.depositManaged(tokenId, mTokenId);
         uint256 supply = escrow.supply();
 
         // locked rewards initially empty
         lockedManagedReward = LockedManagedReward(escrow.managedToLocked(mTokenId));
-        assertEq(VELO.balanceOf(address(lockedManagedReward)), 0);
+        assertEq(AERO.balanceOf(address(lockedManagedReward)), 0);
         freeManagedReward = FreeManagedReward(escrow.managedToFree(mTokenId));
-        assertEq(VELO.balanceOf(address(freeManagedReward)), 0);
+        assertEq(AERO.balanceOf(address(freeManagedReward)), 0);
 
         // simulate free rewards via notifyRewardAmount
-        VELO.approve(address(freeManagedReward), TOKEN_1);
-        freeManagedReward.notifyRewardAmount(address(VELO), TOKEN_1);
+        AERO.approve(address(freeManagedReward), TOKEN_1);
+        freeManagedReward.notifyRewardAmount(address(AERO), TOKEN_1);
 
         assertEq(escrow.supply(), supply);
-        assertEq(VELO.balanceOf(address(freeManagedReward)), TOKEN_1);
-        assertEq(freeManagedReward.tokenRewardsPerEpoch(address(VELO), 604800), TOKEN_1);
+        assertEq(AERO.balanceOf(address(freeManagedReward)), TOKEN_1);
+        assertEq(freeManagedReward.tokenRewardsPerEpoch(address(AERO), 604800), TOKEN_1);
 
         skipAndRoll(2 weeks);
         vm.expectEmit(true, true, true, true, address(escrow));
@@ -1016,23 +1016,23 @@ contract ManagedNftTest is BaseTest {
         assertEq(freeManagedReward.balanceOf(tokenId), 0);
         assertEq(freeManagedReward.totalSupply(), 0);
 
-        assertEq(VELO.balanceOf(address(escrow)), TOKEN_1);
-        assertEq(VELO.balanceOf(address(lockedManagedReward)), 0);
+        assertEq(AERO.balanceOf(address(escrow)), TOKEN_1);
+        assertEq(AERO.balanceOf(address(lockedManagedReward)), 0);
 
         skip(1 hours);
         // collect reward after withdrawal
         address[] memory rewards = new address[](1);
-        rewards[0] = address(VELO);
-        uint256 pre = VELO.balanceOf(address(owner));
+        rewards[0] = address(AERO);
+        uint256 pre = AERO.balanceOf(address(owner));
         freeManagedReward.getReward(tokenId, rewards);
-        uint256 post = VELO.balanceOf(address(owner));
+        uint256 post = AERO.balanceOf(address(owner));
         assertEq(post - pre, TOKEN_1);
     }
 
     function testWithdrawManagedWithLockedRewardWithDelegatingManagedNFT() public {
         skip(1 hours);
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         uint256 tokenId2 = escrow.createLock(TOKEN_1, MAXTIME);
         vm.prank(address(owner2));
@@ -1041,13 +1041,13 @@ contract ManagedNftTest is BaseTest {
 
         // locked rewards initially empty
         lockedManagedReward = LockedManagedReward(escrow.managedToLocked(mTokenId));
-        assertEq(VELO.balanceOf(address(lockedManagedReward)), 0);
+        assertEq(AERO.balanceOf(address(lockedManagedReward)), 0);
         freeManagedReward = FreeManagedReward(escrow.managedToFree(mTokenId));
-        assertEq(VELO.balanceOf(address(freeManagedReward)), 0);
+        assertEq(AERO.balanceOf(address(freeManagedReward)), 0);
 
         // simulate locked rewards (i.e. rebase / compound) via increaseAmount
         vm.startPrank(address(owner2));
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.increaseAmount(mTokenId, TOKEN_1);
         vm.stopPrank();
 
@@ -1071,8 +1071,8 @@ contract ManagedNftTest is BaseTest {
         assertEq(escrow.balanceOfNFT(mTokenId), TOKEN_1 * 2);
 
         assertEq(escrow.supply(), TOKEN_1 * 3);
-        assertEq(VELO.balanceOf(address(lockedManagedReward)), TOKEN_1);
-        assertEq(lockedManagedReward.tokenRewardsPerEpoch(address(VELO), 604800), TOKEN_1);
+        assertEq(AERO.balanceOf(address(lockedManagedReward)), TOKEN_1);
+        assertEq(lockedManagedReward.tokenRewardsPerEpoch(address(AERO), 604800), TOKEN_1);
 
         skipAndRoll(2 weeks);
         vm.expectEmit(true, false, false, false, address(escrow));
@@ -1155,15 +1155,15 @@ contract ManagedNftTest is BaseTest {
         assertEq(freeManagedReward.balanceOf(tokenId), 0);
         assertEq(freeManagedReward.totalSupply(), 0);
 
-        assertEq(VELO.balanceOf(address(escrow)), TOKEN_1 * 3);
-        assertEq(VELO.balanceOf(address(lockedManagedReward)), 0);
+        assertEq(AERO.balanceOf(address(escrow)), TOKEN_1 * 3);
+        assertEq(AERO.balanceOf(address(lockedManagedReward)), 0);
     }
 
     function testCannotIncreaseAmountWithLockedNft() public {
         skipAndRoll(1 hours);
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
 
         voter.depositManaged(tokenId, mTokenId);
@@ -1176,7 +1176,7 @@ contract ManagedNftTest is BaseTest {
         skipAndRoll(1 hours);
         uint256 mTokenId = escrow.createManagedLockFor(address(owner));
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
 
         vm.expectRevert(IVotingEscrow.NoLockFound.selector);
         escrow.increaseAmount(mTokenId, TOKEN_1);
@@ -1186,7 +1186,7 @@ contract ManagedNftTest is BaseTest {
         skipAndRoll(1 hours);
         uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
 
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
 
         voter.depositManaged(tokenId, mTokenId);
@@ -1198,7 +1198,7 @@ contract ManagedNftTest is BaseTest {
     function testCannotWithdrawLockedVeNft() public {
         skipAndRoll(1 hours);
         // lock for four weeks
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, 4 * 7 * 86400);
 
         uint256 mTokenId = escrow.createManagedLockFor(address(owner));
@@ -1212,7 +1212,7 @@ contract ManagedNftTest is BaseTest {
 
     function testCannotMergeFromLockedNft() public {
         skipAndRoll(1 hours);
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         uint256 tokenId2 = escrow.createLock(TOKEN_1, MAXTIME);
 
@@ -1225,7 +1225,7 @@ contract ManagedNftTest is BaseTest {
 
     function testCannotMergeToLockedNft() public {
         skipAndRoll(1 hours);
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         uint256 tokenId2 = escrow.createLock(TOKEN_1, MAXTIME);
 
@@ -1238,7 +1238,7 @@ contract ManagedNftTest is BaseTest {
 
     function testCannotTransferLockedVeNft() public {
         skipAndRoll(1 hours);
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
 
         uint256 mTokenId = escrow.createManagedLockFor(address(owner));
@@ -1250,7 +1250,7 @@ contract ManagedNftTest is BaseTest {
 
     function testCannotMergeFromManagedNft() public {
         skipAndRoll(1 hours);
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         uint256 tokenId2 = escrow.createLock(TOKEN_1, MAXTIME);
 
@@ -1263,7 +1263,7 @@ contract ManagedNftTest is BaseTest {
 
     function testCannotMergeToManagedNft() public {
         skipAndRoll(1 hours);
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
         uint256 tokenId2 = escrow.createLock(TOKEN_1, MAXTIME);
 
@@ -1276,7 +1276,7 @@ contract ManagedNftTest is BaseTest {
 
     function testTransferManagedNft() public {
         skipAndRoll(1 hours);
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
 
         uint256 mTokenId = escrow.createManagedLockFor(address(owner));
@@ -1291,7 +1291,7 @@ contract ManagedNftTest is BaseTest {
 
     function testCannotWithdrawManagedNft() public {
         skipAndRoll(1 hours);
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         uint256 tokenId = escrow.createLock(TOKEN_1, 4 * 7 * 86400);
 
         uint256 mTokenId = escrow.createManagedLockFor(address(owner));
@@ -1378,7 +1378,7 @@ contract ManagedNftTest is BaseTest {
     }
 
     function testCannotSetManagedStateWithNotManagedNFT() public {
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
 
         vm.expectRevert(IVotingEscrow.NotManagedNFT.selector);

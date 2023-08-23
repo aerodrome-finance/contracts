@@ -17,7 +17,7 @@ contract VotingEscrowTest is ExtendedBaseTest {
         // nft id               1
         // user points:         1
         // global point epoch:  1
-        VELO.approve(address(escrow), type(uint256).max);
+        AERO.approve(address(escrow), type(uint256).max);
         escrow.createLock(TOKEN_1, MAXTIME); // 1
 
         locked = escrow.locked(1);

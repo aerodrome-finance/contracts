@@ -260,7 +260,7 @@ contract FactoryRegistryTest is BaseTest {
         // gauge validation
         assertEq(address(newPool2), Gauge(newGauge).stakingToken());
         assertEq(newFeesVotingReward, Gauge(newGauge).feesVotingReward());
-        assertEq(address(VELO), Gauge(newGauge).rewardToken());
+        assertEq(address(AERO), Gauge(newGauge).rewardToken());
         assertEq(address(voter), Gauge(newGauge).voter());
         assertEq(Gauge(newGauge).team(), escrow.team());
         assertTrue(Gauge(newGauge).isPool());
@@ -300,7 +300,7 @@ contract FactoryRegistryTest is BaseTest {
         // gauge validation
         assertEq(address(newPool2), Gauge(newGauge).stakingToken());
         assertEq(newFeesVotingReward, Gauge(newGauge).feesVotingReward());
-        assertEq(address(VELO), Gauge(newGauge).rewardToken());
+        assertEq(address(AERO), Gauge(newGauge).rewardToken());
         assertEq(address(voter), Gauge(newGauge).voter());
         assertEq(Gauge(newGauge).team(), escrow.team());
         assertTrue(Gauge(newGauge).isPool());
@@ -340,7 +340,7 @@ contract FactoryRegistryTest is BaseTest {
         // gauge validation
         assertEq(address(newPool2), Gauge(newGauge).stakingToken());
         assertEq(newFeesVotingReward, Gauge(newGauge).feesVotingReward());
-        assertEq(address(VELO), Gauge(newGauge).rewardToken());
+        assertEq(address(AERO), Gauge(newGauge).rewardToken());
         assertEq(address(voter), Gauge(newGauge).voter());
         assertEq(Gauge(newGauge).team(), escrow.team());
         assertTrue(Gauge(newGauge).isPool());

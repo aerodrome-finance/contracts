@@ -1,7 +1,7 @@
 import { getContractAt } from "./utils/helpers";
 import { PoolFactory, Voter } from "../../artifacts/types";
 import jsonConstants from "../constants/Optimism.json";
-import deployedContracts from "../constants/output/VelodromeV2Output.json";
+import deployedContracts from "../constants/output/ProtocolOutput.json";
 
 async function main() {
   const factory = await getContractAt<PoolFactory>(
@@ -10,9 +10,9 @@ async function main() {
   );
   const voter = await getContractAt<Voter>("Voter", deployedContracts.voter);
 
-  // Deploy non-VELO pools and gauges
-  for (var i = 0; i < jsonConstants.poolsV2.length; i++) {
-    const { stable, tokenA, tokenB } = jsonConstants.poolsV2[i];
+  // Deploy non-AERO pools and gauges
+  for (var i = 0; i < jsonConstants.pools.length; i++) {
+    const { stable, tokenA, tokenB } = jsonConstants.pools[i];
     await factory.functions["createPool(address,address,bool)"](
       tokenA,
       tokenB,
@@ -28,17 +28,17 @@ async function main() {
       }
     );
     await voter.createGauge(
-      deployedContracts.poolFactory, // PoolFactory (v2)
+      deployedContracts.poolFactory, // PoolFactory
       pool[0],
       { gasLimit: 5000000 }
     );
   }
 
-  // Deploy VELO pools and gauges
-  for (var i = 0; i < jsonConstants.poolsVeloV2.length; i++) {
-    const [stable, token] = Object.values(jsonConstants.poolsVeloV2[i]);
+  // Deploy AERO pools and gauges
+  for (var i = 0; i < jsonConstants.poolsAero.length; i++) {
+    const [stable, token] = Object.values(jsonConstants.poolsAero[i]);
     await factory.functions["createPool(address,address,bool)"](
-      deployedContracts.VELO,
+      deployedContracts.AERO,
       token,
       stable,
       {
@@ -46,7 +46,7 @@ async function main() {
       }
     );
     let pool = await factory.functions["getPool(address,address,bool)"](
-      deployedContracts.VELO,
+      deployedContracts.AERO,
       token,
       stable,
       {
@@ -54,7 +54,7 @@ async function main() {
       }
     );
     await voter.createGauge(
-      deployedContracts.poolFactory, // PoolFactory (v2)
+      deployedContracts.poolFactory, // PoolFactory
       pool[0],
       { gasLimit: 5000000 }
     );

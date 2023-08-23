@@ -18,11 +18,11 @@ import {PoolFees} from "contracts/PoolFees.sol";
 import {RewardsDistributor, IRewardsDistributor} from "contracts/RewardsDistributor.sol";
 import {IAirdropDistributor, AirdropDistributor} from "contracts/AirdropDistributor.sol";
 import {IRouter, Router} from "contracts/Router.sol";
-import {IVelo, Velo} from "contracts/Velo.sol";
+import {IAero, Aero} from "contracts/Aero.sol";
 import {IVoter, Voter} from "contracts/Voter.sol";
 import {VeArtProxy} from "contracts/VeArtProxy.sol";
 import {IVotingEscrow, VotingEscrow} from "contracts/VotingEscrow.sol";
-import {VeloGovernor} from "contracts/VeloGovernor.sol";
+import {ProtocolGovernor} from "contracts/ProtocolGovernor.sol";
 import {EpochGovernor} from "contracts/EpochGovernor.sol";
 import {SafeCastLibrary} from "contracts/libraries/SafeCastLibrary.sol";
 import {IWETH} from "contracts/interfaces/IWETH.sol";
@@ -42,14 +42,14 @@ abstract contract Base is Script, Test {
         CUSTOM
     }
     /// @dev Determines whether or not to use the base set up configuration
-    ///      Local v2 deployment used by default
+    ///      Local deployment used by default
     Deployment deploymentType;
 
     IWETH public WETH;
-    Velo public VELO;
+    Aero public AERO;
     address[] public tokens;
 
-    /// @dev Core v2 Deployment
+    /// @dev Core Deployment
     Forwarder public forwarder;
     Pool public implementation;
     Router public router;
@@ -65,7 +65,7 @@ abstract contract Base is Script, Test {
     Minter public minter;
     AirdropDistributor public airdrop;
     Gauge public gauge;
-    VeloGovernor public governor;
+    ProtocolGovernor public governor;
     EpochGovernor public epochGovernor;
 
     /// @dev Global address to set
@@ -76,7 +76,7 @@ abstract contract Base is Script, Test {
 
         forwarder = new Forwarder();
 
-        escrow = new VotingEscrow(address(forwarder), address(VELO), address(factoryRegistry));
+        escrow = new VotingEscrow(address(forwarder), address(AERO), address(factoryRegistry));
         artProxy = new VeArtProxy(address(escrow));
         escrow.setArtProxy(address(artProxy));
 
@@ -99,7 +99,7 @@ abstract contract Base is Script, Test {
         // Setup minter
         minter = new Minter(address(voter), address(escrow), address(distributor));
         distributor.setMinter(address(minter));
-        VELO.setMinter(address(minter));
+        AERO.setMinter(address(minter));
 
         airdrop = new AirdropDistributor(address(escrow));
 

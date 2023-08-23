@@ -1,11 +1,11 @@
 import { getContractAt, deploy } from "./utils/helpers";
-import { VeloGovernor, EpochGovernor } from "../../artifacts/types";
+import { ProtocolGovernor, EpochGovernor } from "../../artifacts/types";
 import jsonConstants from "../constants/Optimism.json";
-import deployedContracts from "../constants/output/VelodromeV2Output.json";
+import deployedContracts from "../constants/output/ProtocolOutput.json";
 
 async function main() {
-  const governor = await deploy<VeloGovernor>(
-    "VeloGovernor",
+  const governor = await deploy<ProtocolGovernor>(
+    "ProtocolGovernor",
     undefined,
     deployedContracts.votingEscrow
   );

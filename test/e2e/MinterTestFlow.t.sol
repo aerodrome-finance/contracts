@@ -10,13 +10,13 @@ contract MinterTestFlow is ExtendedBaseTest {
     function testMinterRebaseFlow() public {
         /// epoch 0
         minter.updatePeriod();
-        assertEq(VELO.balanceOf(address(voter)), 0);
+        assertEq(AERO.balanceOf(address(voter)), 0);
 
-        VELO.approve(address(escrow), TOKEN_100K);
+        AERO.approve(address(escrow), TOKEN_100K);
         escrow.createLock(TOKEN_100K, MAXTIME); // 1
 
         vm.startPrank(address(owner2));
-        VELO.approve(address(escrow), TOKEN_100K);
+        AERO.approve(address(escrow), TOKEN_100K);
         escrow.createLock(TOKEN_100K, MAXTIME); // 2
         vm.stopPrank();
 
@@ -48,42 +48,42 @@ contract MinterTestFlow is ExtendedBaseTest {
         vm.expectEmit(true, true, false, false, address(minter));
         emit Mint(address(owner), expectedMint, 0, false);
         minter.updatePeriod();
-        assertEq(VELO.balanceOf(address(voter)), expectedMint);
+        assertEq(AERO.balanceOf(address(voter)), expectedMint);
 
         address[] memory gauges = new address[](1);
         gauges[0] = address(gauge);
 
         uint256 epochStart = _getEpochStart(block.timestamp);
-        assertEq(VELO.allowance(address(voter), address(gauge)), 0);
+        assertEq(AERO.allowance(address(voter), address(gauge)), 0);
         voter.distribute(gauges);
-        assertEq(VELO.allowance(address(voter), address(gauge)), 0);
-        assertApproxEqRel(VELO.balanceOf(address(gauge)), expectedMint / 2, 1e6);
-        assertApproxEqRel(VELO.balanceOf(address(voter)), expectedMint / 2, 1e6);
+        assertEq(AERO.allowance(address(voter), address(gauge)), 0);
+        assertApproxEqRel(AERO.balanceOf(address(gauge)), expectedMint / 2, 1e6);
+        assertApproxEqRel(AERO.balanceOf(address(voter)), expectedMint / 2, 1e6);
         assertApproxEqRel(gauge.rewardRate(), expectedMint / 2 / (5 days), 1e6);
         assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), expectedMint / 2 / (5 days), 1e6);
         skipAndRoll(1);
 
         minter.updatePeriod();
-        assertApproxEqRel(VELO.balanceOf(address(voter)), expectedMint / 2, 1e6);
+        assertApproxEqRel(AERO.balanceOf(address(voter)), expectedMint / 2, 1e6);
         skipAndRoll(1);
 
         gauges[0] = address(gauge2);
         voter.distribute(gauges);
-        assertApproxEqRel(VELO.balanceOf(address(gauge2)), expectedMint / 2, 1e6);
-        assertLt(VELO.balanceOf(address(voter)), 1e6); // dust
+        assertApproxEqRel(AERO.balanceOf(address(gauge2)), expectedMint / 2, 1e6);
+        assertLt(AERO.balanceOf(address(voter)), 1e6); // dust
         skipAndRoll(1);
 
         skip(1 hours);
         gauges[0] = address(gauge);
         voter.distribute(gauges); // second distribute should make no difference to gauge
-        assertApproxEqRel(VELO.balanceOf(address(gauge)), expectedMint / 2, 1e6);
-        assertLt(VELO.balanceOf(address(voter)), 1e6); // dust
+        assertApproxEqRel(AERO.balanceOf(address(gauge)), expectedMint / 2, 1e6);
+        assertLt(AERO.balanceOf(address(voter)), 1e6); // dust
         assertApproxEqRel(gauge.rewardRate(), expectedMint / 2 / (5 days), 1e6);
         assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), expectedMint / 2 / (5 days), 1e6);
 
         /// epoch 2
         skipToNextEpoch(1);
-        uint256 balance = VELO.balanceOf(address(gauge));
+        uint256 balance = AERO.balanceOf(address(gauge));
         /// 10_300_000_000000000000000000 = 10_300_000e18
         expectedMint = _expectedMintAfter(2);
         balance += expectedMint / 2;
@@ -91,9 +91,9 @@ contract MinterTestFlow is ExtendedBaseTest {
         vm.expectEmit(true, true, false, false, address(minter));
         emit Mint(address(voter), expectedMint, 0, false);
         voter.distribute(0, voter.length());
-        assertLt(VELO.balanceOf(address(voter)), 1e6);
-        assertApproxEqRel(VELO.balanceOf(address(gauge)), balance, 1e6);
-        assertApproxEqRel(VELO.balanceOf(address(gauge)), balance, 1e6);
+        assertLt(AERO.balanceOf(address(voter)), 1e6);
+        assertApproxEqRel(AERO.balanceOf(address(gauge)), balance, 1e6);
+        assertApproxEqRel(AERO.balanceOf(address(gauge)), balance, 1e6);
 
         /// after 67 epochs, tail emissions turn on
         for (uint256 i = 0; i < 65; i++) {
@@ -107,9 +107,9 @@ contract MinterTestFlow is ExtendedBaseTest {
         skipToNextEpoch(1);
 
         minter.updatePeriod();
-        /// total velo supply ~1_318_923_747, tail emissions .29% of total supply
+        /// total aero supply ~1_318_923_747, tail emissions .29% of total supply
         /// 1_318_923_747 ~= 50_000_000 initial supply + emissions until now
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 8_744_211 * TOKEN_1, TOKEN_1);
+        assertApproxEqAbs(AERO.balanceOf(address(voter)), 8_744_211 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
 
         assertEq(minter.tailEmissionRate(), 67);
@@ -142,8 +142,8 @@ contract MinterTestFlow is ExtendedBaseTest {
         assertEq(minter.tailEmissionRate(), 68);
 
         minter.updatePeriod();
-        /// total velo supply ~1_333_083_660, tail emissions .67% of total supply
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 8_968_681 * TOKEN_1, TOKEN_1);
+        /// total aero supply ~1_333_083_660, tail emissions .67% of total supply
+        assertApproxEqAbs(AERO.balanceOf(address(voter)), 8_968_681 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
 
         description = Strings.toString(block.timestamp);
@@ -165,8 +165,8 @@ contract MinterTestFlow is ExtendedBaseTest {
         assertEq(minter.tailEmissionRate(), 68);
 
         minter.updatePeriod();
-        /// total velo supply ~1_347_869_657, tail emissions .68% of total supply
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 9_064_968 * TOKEN_1, TOKEN_1);
+        /// total aero supply ~1_347_869_657, tail emissions .68% of total supply
+        assertApproxEqAbs(AERO.balanceOf(address(voter)), 9_064_968 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
 
         /// expect 0 (against vote) to pass
@@ -179,8 +179,8 @@ contract MinterTestFlow is ExtendedBaseTest {
         assertEq(minter.tailEmissionRate(), 67);
 
         minter.updatePeriod();
-        /// total velo supply ~1_361_640_291, tail emissions .67% of total supply
-        assertApproxEqAbs(VELO.balanceOf(address(voter)), 9_027_516 * TOKEN_1, TOKEN_1);
+        /// total aero supply ~1_361_640_291, tail emissions .67% of total supply
+        assertApproxEqAbs(AERO.balanceOf(address(voter)), 9_027_516 * TOKEN_1, TOKEN_1);
         voter.distribute(0, voter.length());
     }
 

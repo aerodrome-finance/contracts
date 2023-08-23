@@ -3,16 +3,16 @@ pragma solidity 0.8.19;
 
 import "./BaseTest.sol";
 
-contract VeloTest is BaseTest {
-    Velo token;
+contract AeroTest is BaseTest {
+    Aero token;
 
     function _setUp() public override {
-        token = new Velo();
+        token = new Aero();
     }
 
     function testCannotSetMinterIfNotMinter() public {
         vm.prank(address(owner2));
-        vm.expectRevert(IVelo.NotMinter.selector);
+        vm.expectRevert(IAero.NotMinter.selector);
         token.setMinter(address(owner3));
     }
 
@@ -24,7 +24,7 @@ contract VeloTest is BaseTest {
 
     function testCannotMintIfNotMinter() public {
         vm.prank(address(owner2));
-        vm.expectRevert(IVelo.NotMinter.selector);
+        vm.expectRevert(IAero.NotMinter.selector);
         token.mint(address(owner2), TOKEN_1);
     }
 }

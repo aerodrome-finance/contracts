@@ -15,7 +15,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {ERC2771Context} from "@openzeppelin/contracts/metatx/ERC2771Context.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
-/// @title Velodrome V2 Router
+/// @title Protocol Router
 /// @author velodrome.finance, @pegahcarter
 /// @notice Router allows routes through any pools created by any factory adhering to univ2 interface.
 contract Router is IRouter, ERC2771Context {

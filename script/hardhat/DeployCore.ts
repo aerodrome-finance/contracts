@@ -14,16 +14,16 @@ import {
   RewardsDistributor,
   AirdropDistributor,
   Router,
-  Velo,
+  Aero,
   Voter,
   VeArtProxy,
   VotingEscrow,
   IERC20,
-  VeloForwarder,
+  ProtocolForwarder,
 } from "../../artifacts/types";
 import jsonConstants from "../constants/Optimism.json";
 
-interface VelodromeV2Output {
+interface ProtocolOutput {
   AirdropDistributor: string;
   ArtProxy: string;
   Distributor: string;
@@ -34,7 +34,7 @@ interface VelodromeV2Output {
   Minter: string;
   PoolFactory: string;
   Router: string;
-  VELO: string;
+  AERO: string;
   Voter: string;
   VotingEscrow: string;
   VotingRewardsFactory: string;
@@ -51,8 +51,8 @@ async function main() {
   const AIRDROPPER_BALANCE = 200_000_000;
   const DECIMAL = BigNumber.from(10).pow(18);
 
-  const VELO = await deploy<Velo>("Velo");
-  jsonConstants.whitelistTokens.push(VELO.address);
+  const AERO = await deploy<Aero>("Aero");
+  jsonConstants.whitelistTokens.push(AERO.address);
   // ====== end _deploySetupBefore() ======
 
   // ====== start _coreSetup() ======
@@ -88,7 +88,7 @@ async function main() {
   );
   // ====== end deployFactories() ======
 
-  const forwarder = await deploy<VeloForwarder>("VeloForwarder");
+  const forwarder = await deploy<ProtocolForwarder>("ProtocolForwarder");
 
   const balanceLogicLibrary = await deployLibrary("BalanceLogicLibrary");
   const delegationLogicLibrary = await deployLibrary("DelegationLogicLibrary");
@@ -101,7 +101,7 @@ async function main() {
     "VotingEscrow",
     libraries,
     forwarder.address,
-    VELO.address,
+    AERO.address,
     factoryRegistry.address
   );
 
@@ -153,7 +153,7 @@ async function main() {
     distributor.address
   );
   await distributor.setMinter(minter.address);
-  await VELO.setMinter(minter.address);
+  await AERO.setMinter(minter.address);
 
   const airdrop = await deploy<AirdropDistributor>(
     "AirdropDistributor",
@@ -214,10 +214,10 @@ async function main() {
   const outputFile = join(
     process.cwd(),
     outputDirectory,
-    "VelodromeV2Output.json"
+    "ProtocolOutput.json"
   );
 
-  const output: VelodromeV2Output = {
+  const output: ProtocolOutput = {
     AirdropDistributor: airdrop.address,
     ArtProxy: artProxy.address,
     Distributor: distributor.address,
@@ -228,7 +228,7 @@ async function main() {
     Minter: minter.address,
     PoolFactory: poolFactory.address,
     Router: router.address,
-    VELO: VELO.address,
+    AERO: AERO.address,
     Voter: voter.address,
     VotingEscrow: escrow.address,
     VotingRewardsFactory: votingRewardsFactory.address,

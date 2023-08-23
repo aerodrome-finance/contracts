@@ -13,7 +13,7 @@ interface IFactoryRegistry {
     event Unapprove(address indexed poolFactory, address indexed votingRewardsFactory, address indexed gaugeFactory);
     event SetManagedRewardsFactory(address indexed _newRewardsFactory);
 
-    /// @notice Approve a set of factories used in Velodrome Protocol.
+    /// @notice Approve a set of factories used in the Protocol.
     ///         Router.sol is able to swap any poolFactories currently approved.
     ///         Cannot approve address(0) factories.
     ///         Cannot aprove path that is already approved.
@@ -27,7 +27,7 @@ interface IFactoryRegistry {
     /// @param gaugeFactory .
     function approve(address poolFactory, address votingRewardsFactory, address gaugeFactory) external;
 
-    /// @notice Unapprove a set of factories used in Velodrome Protocol.
+    /// @notice Unapprove a set of factories used in the Protocol.
     ///         While a poolFactory is unapproved, Router.sol cannot swap with pools made from the corresponding factory
     ///         Can only unapprove an approved path.
     ///         Cannot unapprove the fallback path (core v2 factories).

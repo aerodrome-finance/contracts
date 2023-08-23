@@ -11,14 +11,14 @@ contract FreeManagedRewardTest is BaseTest {
 
     function _setUp() public override {
         // ve
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.createLock(TOKEN_1, MAXTIME);
         vm.startPrank(address(owner2));
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.createLock(TOKEN_1, MAXTIME);
         vm.stopPrank();
         vm.startPrank(address(owner3));
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.createLock(TOKEN_1, MAXTIME);
         vm.stopPrank();
 

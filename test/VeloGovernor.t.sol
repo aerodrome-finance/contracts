@@ -4,16 +4,16 @@ pragma solidity 0.8.19;
 import "./BaseTest.sol";
 import {IVetoGovernor} from "contracts/governance/IVetoGovernor.sol";
 
-contract VeloGovernorTest is BaseTest {
+contract ProtocolGovernorTest is BaseTest {
     event ProposalVetoed(uint256 proposalId);
 
     function _setUp() public override {
-        VELO.approve(address(escrow), 97 * TOKEN_1);
+        AERO.approve(address(escrow), 97 * TOKEN_1);
         escrow.createLock(97 * TOKEN_1, MAXTIME); // 1
 
         // owner2 owns less than quorum, 3%
         vm.startPrank(address(owner2));
-        VELO.approve(address(escrow), 3 * TOKEN_1);
+        AERO.approve(address(escrow), 3 * TOKEN_1);
         escrow.createLock(3 * TOKEN_1, MAXTIME); // 2
         vm.stopPrank();
         skipAndRoll(1);
@@ -21,13 +21,13 @@ contract VeloGovernorTest is BaseTest {
 
     function testCannotSetVetoerToZeroAddress() public {
         vm.prank(governor.vetoer());
-        vm.expectRevert(VeloGovernor.ZeroAddress.selector);
+        vm.expectRevert(ProtocolGovernor.ZeroAddress.selector);
         governor.setVetoer(address(0));
     }
 
     function testCannotSetVetoerIfNotVetoer() public {
         vm.prank(address(owner2));
-        vm.expectRevert(VeloGovernor.NotVetoer.selector);
+        vm.expectRevert(ProtocolGovernor.NotVetoer.selector);
         governor.setVetoer(address(owner2));
     }
 
@@ -39,7 +39,7 @@ contract VeloGovernorTest is BaseTest {
 
     function testCannotRenounceVetoerIfNotVetoer() public {
         vm.prank(address(owner2));
-        vm.expectRevert(VeloGovernor.NotVetoer.selector);
+        vm.expectRevert(ProtocolGovernor.NotVetoer.selector);
         governor.renounceVetoer();
     }
 
@@ -53,7 +53,7 @@ contract VeloGovernorTest is BaseTest {
         governor.setVetoer(address(owner2));
 
         vm.prank(address(owner3));
-        vm.expectRevert(VeloGovernor.NotPendingVetoer.selector);
+        vm.expectRevert(ProtocolGovernor.NotPendingVetoer.selector);
         governor.acceptVetoer();
     }
 
@@ -78,7 +78,7 @@ contract VeloGovernorTest is BaseTest {
         uint256 pid = governor.propose(1, targets, values, calldatas, description);
 
         vm.prank(address(owner2));
-        vm.expectRevert(VeloGovernor.NotVetoer.selector);
+        vm.expectRevert(ProtocolGovernor.NotVetoer.selector);
         governor.veto(pid);
     }
 
@@ -117,13 +117,13 @@ contract VeloGovernorTest is BaseTest {
     }
 
     function testCannotSetProposalNumeratorAboveMaximum() public {
-        vm.expectRevert(VeloGovernor.ProposalNumeratorTooHigh.selector);
+        vm.expectRevert(ProtocolGovernor.ProposalNumeratorTooHigh.selector);
         governor.setProposalNumerator(501);
     }
 
     function testCannotSetProposalNumeratorIfNotTeam() public {
         vm.prank(address(owner2));
-        vm.expectRevert(VeloGovernor.NotTeam.selector);
+        vm.expectRevert(ProtocolGovernor.NotTeam.selector);
         governor.setProposalNumerator(1);
     }
 
@@ -233,10 +233,10 @@ contract VeloGovernorTest is BaseTest {
     }
 
     function testProposalHasQuorumWithDelegatedVotes() public {
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.createLock(TOKEN_1, MAXTIME); // 3
         vm.startPrank(address(owner3));
-        VELO.approve(address(escrow), TOKEN_1 * 100);
+        AERO.approve(address(escrow), TOKEN_1 * 100);
         escrow.createLock(TOKEN_1 * 100, MAXTIME); // 4
         escrow.lockPermanent(4);
         escrow.delegate(4, 3);

@@ -35,7 +35,7 @@ interface IRouter {
     /// @notice Address of FactoryRegistry.sol
     function factoryRegistry() external view returns (address);
 
-    /// @notice Address of Velodrome v2 PoolFactory.sol
+    /// @notice Address of Protocol PoolFactory.sol
     function defaultFactory() external view returns (address);
 
     /// @notice Address of Voter.sol

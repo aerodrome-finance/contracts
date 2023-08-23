@@ -19,7 +19,7 @@ contract DeployGovernors is Script {
     VotingEscrow public escrow;
     Forwarder public forwarder;
     Minter public minter;
-    VeloGovernor public governor;
+    ProtocolGovernor public governor;
     EpochGovernor public epochGovernor;
 
     constructor() {}
@@ -32,7 +32,7 @@ contract DeployGovernors is Script {
         jsonConstants = vm.readFile(path);
         team = abi.decode(vm.parseJson(jsonConstants, ".team"), (address));
 
-        path = string.concat(basePath, "output/DeployVelodromeV2-");
+        path = string.concat(basePath, "output/DeployCore-");
         path = string.concat(path, outputFilename);
         jsonOutput = vm.readFile(path);
         escrow = VotingEscrow(abi.decode(vm.parseJson(jsonOutput, ".VotingEscrow"), (address)));
@@ -41,7 +41,7 @@ contract DeployGovernors is Script {
 
         vm.startBroadcast(deployAddress);
 
-        governor = new VeloGovernor(escrow);
+        governor = new ProtocolGovernor(escrow);
         epochGovernor = new EpochGovernor(address(forwarder), escrow, address(minter));
 
         governor.setVetoer(escrow.team());

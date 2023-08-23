@@ -8,14 +8,14 @@ contract GaugeTest is BaseTest {
 
     function _setUp() public override {
         // ve
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.createLock(TOKEN_1, MAXTIME);
         vm.startPrank(address(owner2));
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.createLock(TOKEN_1, MAXTIME);
         vm.stopPrank();
         vm.startPrank(address(owner3));
-        VELO.approve(address(escrow), TOKEN_1);
+        AERO.approve(address(escrow), TOKEN_1);
         escrow.createLock(TOKEN_1, MAXTIME);
         vm.stopPrank();
         vm.warp(block.timestamp + 1);
@@ -222,9 +222,9 @@ contract GaugeTest is BaseTest {
         assertApproxEqRel(gauge.earned(address(owner)), reward / 4, 1e6);
         assertApproxEqRel(gauge.earned(address(owner2)), reward / 4, 1e6);
 
-        uint256 pre = VELO.balanceOf(address(owner));
+        uint256 pre = AERO.balanceOf(address(owner));
         gauge.getReward(address(owner));
-        uint256 post = VELO.balanceOf(address(owner));
+        uint256 post = AERO.balanceOf(address(owner));
 
         assertApproxEqRel(post - pre, reward / 4, 1e6);
 
@@ -233,16 +233,16 @@ contract GaugeTest is BaseTest {
         assertApproxEqRel(gauge.earned(address(owner)), reward / 4, 1e6);
         assertApproxEqRel(gauge.earned(address(owner2)), reward / 2, 1e6);
 
-        pre = VELO.balanceOf(address(owner));
+        pre = AERO.balanceOf(address(owner));
         gauge.getReward(address(owner));
-        post = VELO.balanceOf(address(owner));
+        post = AERO.balanceOf(address(owner));
 
         assertApproxEqRel(post - pre, reward / 4, 1e6);
 
-        pre = VELO.balanceOf(address(owner2));
+        pre = AERO.balanceOf(address(owner2));
         vm.prank(address(owner2));
         gauge.getReward(address(owner2));
-        post = VELO.balanceOf(address(owner2));
+        post = AERO.balanceOf(address(owner2));
 
         assertApproxEqRel(post - pre, reward / 2, 1e6);
     }
@@ -267,9 +267,9 @@ contract GaugeTest is BaseTest {
         assertApproxEqRel(gauge.earned(address(owner)), reward / 4, 1e6);
         assertApproxEqRel(gauge.earned(address(owner2)), reward / 4, 1e6);
 
-        uint256 pre = VELO.balanceOf(address(owner));
+        uint256 pre = AERO.balanceOf(address(owner));
         gauge.getReward(address(owner));
-        uint256 post = VELO.balanceOf(address(owner));
+        uint256 post = AERO.balanceOf(address(owner));
 
         assertApproxEqRel(post - pre, reward / 4, 1e6);
 
@@ -282,10 +282,10 @@ contract GaugeTest is BaseTest {
         assertApproxEqRel(gauge.earned(address(owner)), 0, 1e6);
         assertApproxEqRel(gauge.earned(address(owner2)), (3 * reward) / 4, 1e6);
 
-        pre = VELO.balanceOf(address(owner2));
+        pre = AERO.balanceOf(address(owner2));
         vm.prank(address(owner2));
         gauge.getReward(address(owner2));
-        post = VELO.balanceOf(address(owner2));
+        post = AERO.balanceOf(address(owner2));
 
         assertApproxEqRel(post - pre, (3 * reward) / 4, 1e6);
     }
@@ -431,16 +431,16 @@ contract GaugeTest is BaseTest {
         assertApproxEqRel(gauge.earned(address(owner)), reward2 / 2, 1e6);
         assertApproxEqRel(gauge.earned(address(owner2)), (reward + reward2) / 2, 1e6);
 
-        uint256 pre = VELO.balanceOf(address(owner));
+        uint256 pre = AERO.balanceOf(address(owner));
         vm.prank(address(owner));
         gauge.getReward(address(owner));
-        uint256 post = VELO.balanceOf(address(owner));
+        uint256 post = AERO.balanceOf(address(owner));
         assertApproxEqRel(post - pre, reward2 / 2, 1e6);
 
-        pre = VELO.balanceOf(address(owner2));
+        pre = AERO.balanceOf(address(owner2));
         vm.prank(address(owner2));
         gauge.getReward(address(owner2));
-        post = VELO.balanceOf(address(owner2));
+        post = AERO.balanceOf(address(owner2));
 
         assertApproxEqRel(post - pre, (reward + reward2) / 2, 1e6);
     }
@@ -486,9 +486,9 @@ contract GaugeTest is BaseTest {
 
     function testNotifyRewardAmountWithNonZeroAmount() public {
         uint256 reward = TOKEN_1;
-        deal(address(VELO), address(voter), reward);
+        deal(address(AERO), address(voter), reward);
         vm.startPrank(address(voter));
-        VELO.approve(address(gauge), reward);
+        AERO.approve(address(gauge), reward);
         vm.expectCall(Gauge(gauge).stakingToken(), abi.encodeCall(IPool.claimFees, ()), 1);
         Gauge(gauge).notifyRewardAmount(reward);
         vm.stopPrank();
@@ -496,7 +496,7 @@ contract GaugeTest is BaseTest {
         uint256 epochStart = _getEpochStart(block.timestamp);
         assertApproxEqRel(gauge.rewardRate(), reward / DURATION, 1e6);
         assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), reward / DURATION, 1e6);
-        assertEq(VELO.balanceOf(address(gauge)), TOKEN_1);
+        assertEq(AERO.balanceOf(address(gauge)), TOKEN_1);
         assertEq(gauge.lastUpdateTime(), block.timestamp);
         assertEq(gauge.periodFinish(), _getEpochStart(block.timestamp) + DURATION);
     }
@@ -505,9 +505,9 @@ contract GaugeTest is BaseTest {
         skipAndRoll(1 days);
 
         uint256 reward = TOKEN_1;
-        deal(address(VELO), address(voter), reward);
+        deal(address(AERO), address(voter), reward);
         vm.startPrank(address(voter));
-        VELO.approve(address(gauge), reward);
+        AERO.approve(address(gauge), reward);
         vm.expectCall(Gauge(gauge).stakingToken(), abi.encodeCall(IPool.claimFees, ()), 1);
         Gauge(gauge).notifyRewardAmount(reward);
         vm.stopPrank();
@@ -515,7 +515,7 @@ contract GaugeTest is BaseTest {
         uint256 epochStart = _getEpochStart(block.timestamp);
         assertApproxEqRel(gauge.rewardRate(), (reward / (6 days)), 1e6);
         assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), reward / (6 days), 1e6);
-        assertEq(VELO.balanceOf(address(gauge)), TOKEN_1);
+        assertEq(AERO.balanceOf(address(gauge)), TOKEN_1);
         assertEq(gauge.lastUpdateTime(), block.timestamp);
         assertEq(gauge.periodFinish(), _getEpochStart(block.timestamp) + DURATION);
     }
@@ -533,23 +533,23 @@ contract GaugeTest is BaseTest {
 
     function testNotifyRewardsWithoutClaimAfterClaimingFees() public {
         uint256 reward = TOKEN_1;
-        deal(address(VELO), address(voter), reward);
+        deal(address(AERO), address(voter), reward);
         vm.startPrank(address(voter));
-        VELO.approve(address(gauge), reward);
+        AERO.approve(address(gauge), reward);
         Gauge(gauge).notifyRewardAmount(reward);
         vm.stopPrank();
 
         uint256 epochStart = _getEpochStart(block.timestamp);
         assertApproxEqRel(gauge.rewardRate(), reward / DURATION, 1e6);
         assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), reward / DURATION, 1e6);
-        assertEq(VELO.balanceOf(address(gauge)), TOKEN_1);
+        assertEq(AERO.balanceOf(address(gauge)), TOKEN_1);
         assertEq(gauge.lastUpdateTime(), block.timestamp);
         assertEq(gauge.periodFinish(), _getEpochStart(block.timestamp) + DURATION);
 
         skipAndRoll(1 days);
 
         vm.startPrank(team);
-        VELO.approve(address(gauge), reward);
+        AERO.approve(address(gauge), reward);
         vm.expectCall(Gauge(gauge).stakingToken(), abi.encodeCall(IPool.claimFees, ()), 0);
         Gauge(gauge).notifyRewardWithoutClaim(reward);
         vm.stopPrank();
@@ -560,7 +560,7 @@ contract GaugeTest is BaseTest {
         epochStart = _getEpochStart(block.timestamp);
         assertApproxEqRel(gauge.rewardRate(), (reward / (6 days)), 1e6);
         assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), reward / (6 days), 1e6);
-        assertEq(VELO.balanceOf(address(gauge)), 2 * TOKEN_1);
+        assertEq(AERO.balanceOf(address(gauge)), 2 * TOKEN_1);
         assertEq(gauge.lastUpdateTime(), block.timestamp);
         assertEq(gauge.periodFinish(), _getEpochStart(block.timestamp) + DURATION);
     }
@@ -568,7 +568,7 @@ contract GaugeTest is BaseTest {
     function testNotifyRewardWithoutClaimNonZeroAmount() public {
         uint256 reward = TOKEN_1;
         vm.startPrank(team);
-        VELO.approve(address(gauge), reward);
+        AERO.approve(address(gauge), reward);
         vm.expectCall(Gauge(gauge).stakingToken(), abi.encodeCall(IPool.claimFees, ()), 0);
         Gauge(gauge).notifyRewardWithoutClaim(reward);
         vm.stopPrank();
@@ -576,7 +576,7 @@ contract GaugeTest is BaseTest {
         uint256 epochStart = _getEpochStart(block.timestamp);
         assertApproxEqRel(gauge.rewardRate(), reward / DURATION, 1e6);
         assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), reward / DURATION, 1e6);
-        assertEq(VELO.balanceOf(address(gauge)), TOKEN_1);
+        assertEq(AERO.balanceOf(address(gauge)), TOKEN_1);
         assertEq(gauge.lastUpdateTime(), block.timestamp);
         assertEq(gauge.periodFinish(), _getEpochStart(block.timestamp) + DURATION);
     }
@@ -586,7 +586,7 @@ contract GaugeTest is BaseTest {
 
         uint256 reward = TOKEN_1;
         vm.startPrank(team);
-        VELO.approve(address(gauge), reward);
+        AERO.approve(address(gauge), reward);
         vm.expectCall(Gauge(gauge).stakingToken(), abi.encodeCall(IPool.claimFees, ()), 0);
         Gauge(gauge).notifyRewardWithoutClaim(reward);
         vm.stopPrank();
@@ -594,7 +594,7 @@ contract GaugeTest is BaseTest {
         uint256 epochStart = _getEpochStart(block.timestamp);
         assertApproxEqRel(gauge.rewardRate(), (reward / (6 days)), 1e6);
         assertApproxEqRel(gauge.rewardRateByEpoch(epochStart), reward / (6 days), 1e6);
-        assertEq(VELO.balanceOf(address(gauge)), TOKEN_1);
+        assertEq(AERO.balanceOf(address(gauge)), TOKEN_1);
         assertEq(gauge.lastUpdateTime(), block.timestamp);
         assertEq(gauge.periodFinish(), _getEpochStart(block.timestamp) + DURATION);
     }
@@ -625,18 +625,18 @@ contract GaugeTest is BaseTest {
 
         skip(1 days);
 
-        uint256 pre = VELO.balanceOf(address(owner));
+        uint256 pre = AERO.balanceOf(address(owner));
         gauge.getReward(address(owner));
-        uint256 post = VELO.balanceOf(address(owner));
+        uint256 post = AERO.balanceOf(address(owner));
 
         assertApproxEqRel(post - pre, reward / 7, 1e6);
 
         skip(1 days);
 
-        pre = VELO.balanceOf(address(owner));
+        pre = AERO.balanceOf(address(owner));
         vm.prank(address(voter));
         gauge.getReward(address(owner));
-        post = VELO.balanceOf(address(owner));
+        post = AERO.balanceOf(address(owner));
 
         assertApproxEqRel(post - pre, reward / 7, 1e6);
     }

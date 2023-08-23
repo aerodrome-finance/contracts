@@ -5,16 +5,16 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IFactoryRegistry} from "../interfaces/factories/IFactoryRegistry.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-/// @title Velodrome V2 Factory Registry
+/// @title Protocol Factory Registry
 /// @author Carter Carlson (@pegahcarter)
-/// @notice Velodrome V2 Factory Registry to swap and create gauges
+/// @notice Protocol Factory Registry to swap and create gauges
 contract FactoryRegistry is IFactoryRegistry, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @dev factory to create free and locked rewards for a managed veNFT
     address private _managedRewardsFactory;
 
-    /// @dev Velodrome protocol will always have a usable poolFactory, votingRewardsFactory, and gaugeFactory.  The votingRewardsFactory
+    /// @dev The protocol will always have a usable poolFactory, votingRewardsFactory, and gaugeFactory.  The votingRewardsFactory
     // and gaugeFactory are defined to the poolFactory which can never be removed
     address public immutable fallbackPoolFactory;
 

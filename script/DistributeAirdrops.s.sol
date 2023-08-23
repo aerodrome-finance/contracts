@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 import "forge-std/StdJson.sol";
 import "../test/Base.sol";
 
-/// @notice Deploy script to deploy new pools and gauges for v2
+/// @notice Script to distribute all the provided Airdrops
 contract DistributeAirdrops is Script {
     using stdJson for string;
 
@@ -18,7 +18,7 @@ contract DistributeAirdrops is Script {
     string public path;
 
     AirdropDistributor public airdrop;
-    Velo public VELO;
+    Aero public AERO;
 
     struct AirdropInfo {
         uint256 amount;
@@ -28,11 +28,11 @@ contract DistributeAirdrops is Script {
     constructor() {
         string memory root = vm.projectRoot();
         basePath = string.concat(root, "/script/constants/");
-        path = string.concat(basePath, "output/DeployVelodromeV2-");
+        path = string.concat(basePath, "output/DeployCore-");
         path = string.concat(path, outputFilename);
         jsonConstants = vm.readFile(path);
 
-        VELO = Velo(abi.decode(jsonConstants.parseRaw(".VELO"), (address)));
+        AERO = Aero(abi.decode(jsonConstants.parseRaw(".AERO"), (address)));
         airdrop = AirdropDistributor(abi.decode(jsonConstants.parseRaw(".AirdropDistributor"), (address)));
 
         path = string.concat(basePath, airdropFilename);
@@ -49,7 +49,7 @@ contract DistributeAirdrops is Script {
         for (uint256 i = 0; i < walletsLength; i++) {
             sum += amounts[i];
         }
-        require(VELO.balanceOf(address(airdrop)) >= sum, "Not enough balance to proceed with airdrops");
+        require(AERO.balanceOf(address(airdrop)) >= sum, "Not enough balance to proceed with airdrops");
 
         path = string.concat(basePath, "output/AirdropDistribution-");
         path = string.concat(path, outputFilename);

@@ -1,6 +1,6 @@
-# Velodrome
+# Protocol
 
-V2 contracts for Velodrome Finance, an AMM on Optimism inspired by Solidly.
+All contracts for the Protocol, an AMM on EVMs inspired by Solidly.
 
 See `SPECIFICATION.md` for more detail.
 
@@ -13,14 +13,14 @@ See `SPECIFICATION.md` for more detail.
 | `Pool.sol` | AMM constant-product implementation similar to Uniswap V2 liquidity pools |
 | `Router.sol` | Handles multi-pool swaps, deposit/withdrawal, similar to Uniswap V2 Router interface |
 | `PoolFees.sol` | Stores the liquidity pool trading fees, these are kept separate from the reserves |
-| `VelodromeLibrary.sol` | Provides router-related helpers, eg. for price-impact calculations |
+| `ProtocolLibrary.sol` | Provides router-related helpers, eg. for price-impact calculations |
 | `FactoryRegistry.sol` | Registry of factories approved for creation of pools, gauges, bribes and managed rewards. |
 
 ### Tokenomy contracts
 
 | Filename | Description |
 | --- | --- |
-| `Velo.sol` | Protocol ERC20 token |
+| `Aero.sol` | Protocol ERC20 token |
 | `VotingEscrow.sol` | Protocol ERC-721 (ve)NFT representing the protocol vote-escrow lock. Beyond standard ve-type functions, there is also the ability to merge, split and create managed nfts. |
 | `Minter.sol` | Protocol token minter. Distributes emissions to `Voter.sol` and rebases to `RewardsDistributor.sol`. |
 | `RewardsDistributor.sol` | Is used to handle the rebases distribution for (ve)NFTs/lockers. |
@@ -39,14 +39,14 @@ See `SPECIFICATION.md` for more detail.
 | `FeesVotingReward.sol` | Stores LP fees (from the gauge via `PoolFees.sol`) to be distributed for the current voting epoch to it's voters. |
 | `BribeVotingReward.sol` | Stores the users/externally provided rewards for the current voting epoch to it's voters. These are deposited externally every week. |
 | `ManagedReward.sol` | Staking implementation for managed veNFTs used by `LockedManagedReward.sol` and `FreeManagedReward.sol` which inherits `Reward.sol`.  Rewards can be earned passively by veNFTs who delegate their voting power to a "managed" veNFT.
-| `LockedManagedReward.sol` | Handles "locked" rewards (i.e. Velo rewards / rebases that are compounded) for managed NFTs. Rewards are not distributed and only returned to `VotingEscrow.sol` when the user withdraws from the managed NFT. | 
+| `LockedManagedReward.sol` | Handles "locked" rewards (i.e. Aero rewards / rebases that are compounded) for managed NFTs. Rewards are not distributed and only returned to `VotingEscrow.sol` when the user withdraws from the managed NFT. | 
 | `FreeManagedReward.sol` | Handles "free" (i.e. unlocked) rewards for managed NFTs. Any rewards earned by a managed NFT that a manager passes on will be distributed to the users that deposited into the managed NFT. | 
 
 ### Governance contracts
 
 | Filename | Description |
 | --- | --- |
-| `VeloGovernor.sol` | OpenZeppelin's Governor contracts used in protocol-wide access control to whitelist tokens for trade  within Velodrome, update minting emissions, and create managed veNFTs. |
+| `ProtocolGovernor.sol` | OpenZeppelin's Governor contracts used in protocol-wide access control to whitelist tokens for trade  within the protocol, update minting emissions, and create managed veNFTs. |
 | `EpochGovernor.sol` | A simple epoch-based governance contract used exclusively for adjusting emissions. |
 
 
@@ -77,14 +77,8 @@ In order to run mainnet fork tests against optimism, inherit `BaseTest` in `Base
 
 See `script/README.md` for more detail.
 
-## Security
-
-For general information about security include audits, bug bounty and deployed contracts, go [here](https://velodrome.finance/security).
-
 ### Access Control
 See `PERMISSIONS.md` for more detail.
-### Bug Bounty
-Velodrome has a live bug bounty hosted on ([Immunefi](https://immunefi.com/bounty/velodromefinance/)).
 
 ## Deployment
 
@@ -99,7 +93,7 @@ Velodrome has a live bug bounty hosted on ([Immunefi](https://immunefi.com/bount
 | Minter               | [0x6dc9E1C04eE59ed3531d73a72256C0da46D10982](https://optimistic.etherscan.io/address/0x6dc9E1C04eE59ed3531d73a72256C0da46D10982#code) |
 | PoolFactory               | [0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a](https://optimistic.etherscan.io/address/0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a#code) |
 | Router               | [0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858](https://optimistic.etherscan.io/address/0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858#code) |
-| VELO               | [0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db](https://optimistic.etherscan.io/address/0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db#code) |
+| AERO               | [0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db](https://optimistic.etherscan.io/address/0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db#code) |
 | Voter               | [0x41C914ee0c7E1A5edCD0295623e6dC557B5aBf3C](https://optimistic.etherscan.io/address/0x41C914ee0c7E1A5edCD0295623e6dC557B5aBf3C#code) |
 | VotingEscrow               | [0xFAf8FD17D9840595845582fCB047DF13f006787d](https://optimistic.etherscan.io/address/0xFAf8FD17D9840595845582fCB047DF13f006787d#code) |
 | VotingRewardsFactory               | [0x756E7C245C69d351FfFBfb88bA234aa395AdA8ec](https://optimistic.etherscan.io/address/0x756E7C245C69d351FfFBfb88bA234aa395AdA8ec#code) |

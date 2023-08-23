@@ -15,7 +15,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 
 /// @title Pool
 /// @author velodrome.finance, @figs999, @pegahcarter
-/// @notice Veldrome V2 token pool, either stable or volatile
+/// @notice Protocol token pool, either stable or volatile
 contract Pool is IPool, ERC20Permit, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -85,11 +85,11 @@ contract Pool is IPool, ERC20Permit, ReentrancyGuard {
         string memory symbol0 = ERC20(_token0).symbol();
         string memory symbol1 = ERC20(_token1).symbol();
         if (_stable) {
-            _name = string(abi.encodePacked("StableV2 AMM - ", symbol0, "/", symbol1));
-            _symbol = string(abi.encodePacked("sAMMV2-", symbol0, "/", symbol1));
+            _name = string(abi.encodePacked("Stable AMM - ", symbol0, "/", symbol1));
+            _symbol = string(abi.encodePacked("sAMM-", symbol0, "/", symbol1));
         } else {
-            _name = string(abi.encodePacked("VolatileV2 AMM - ", symbol0, "/", symbol1));
-            _symbol = string(abi.encodePacked("vAMMV2-", symbol0, "/", symbol1));
+            _name = string(abi.encodePacked("Volatile AMM - ", symbol0, "/", symbol1));
+            _symbol = string(abi.encodePacked("vAMM-", symbol0, "/", symbol1));
         }
 
         decimals0 = 10 ** ERC20(_token0).decimals();

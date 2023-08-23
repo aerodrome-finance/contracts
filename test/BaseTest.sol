@@ -63,8 +63,8 @@ abstract contract BaseTest is Base, TestOwner {
     /// @dev optionally set FORK_BLOCK_NUMBER in .env / test set up for faster tests / fixed tests
     uint256 BLOCK_NUMBER = vm.envOr("FORK_BLOCK_NUMBER", uint256(0));
 
-    /// @dev Default set up of local v2 deployment run if Deployment.DEFAULT selected
-    ///      Mainnet fork + v2 deployment if Deployment.FORK selected
+    /// @dev Default set up of local deployment run if Deployment.DEFAULT selected
+    ///      Mainnet fork + deployment if Deployment.FORK selected
     ///      Only _setUp function run if Deployment.CUSTOM selected
     ///      _setUp can be overriden to provide additional configuration if desired
     ///      To set up mainnet forks from a certain block (e.g. to fix venft balances for testing)
@@ -106,13 +106,13 @@ abstract contract BaseTest is Base, TestOwner {
         amounts[2] = TOKEN_10M;
         amounts[3] = TOKEN_10M;
         amounts[4] = TOKEN_10M;
-        mintToken(address(VELO), owners, amounts);
+        mintToken(address(AERO), owners, amounts);
         mintToken(address(LR), owners, amounts);
 
         tokens.push(address(USDC));
         tokens.push(address(FRAX));
         tokens.push(address(DAI));
-        tokens.push(address(VELO));
+        tokens.push(address(AERO));
         tokens.push(address(LR));
         tokens.push(address(WETH));
 
@@ -121,7 +121,7 @@ abstract contract BaseTest is Base, TestOwner {
 
     function _testSetupAfter() public {
         // Setup governors
-        governor = new VeloGovernor(escrow);
+        governor = new ProtocolGovernor(escrow);
         epochGovernor = new EpochGovernor(address(forwarder), escrow, address(minter));
         voter.setEpochGovernor(address(epochGovernor));
         voter.setGovernor(address(governor));
@@ -227,7 +227,7 @@ abstract contract BaseTest is Base, TestOwner {
             WETH = IWETH(new MockWETH());
             FRAX = new MockERC20("FRAX", "FRAX", 18);
         }
-        VELO = new Velo();
+        AERO = new Aero();
         LR = new MockERC20("LR", "LR", 18);
     }
 
@@ -298,11 +298,11 @@ abstract contract BaseTest is Base, TestOwner {
 
     /// @dev Helper function to add rewards to gauge from voter
     function _addRewardToGauge(address _voter, address _gauge, uint256 _amount) internal {
-        deal(address(VELO), _voter, _amount);
+        deal(address(AERO), _voter, _amount);
         vm.startPrank(_voter);
         // do not overwrite approvals if already set
-        if (VELO.allowance(_voter, _gauge) < _amount) {
-            VELO.approve(_gauge, _amount);
+        if (AERO.allowance(_voter, _gauge) < _amount) {
+            AERO.approve(_gauge, _amount);
         }
         Gauge(_gauge).notifyRewardAmount(_amount);
         vm.stopPrank();

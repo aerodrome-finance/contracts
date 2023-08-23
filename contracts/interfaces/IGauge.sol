@@ -19,19 +19,19 @@ interface IGauge {
     /// @notice Address of the pool LP token which is deposited (staked) for rewards
     function stakingToken() external view returns (address);
 
-    /// @notice Address of the token (VELO v2) rewarded to stakers
+    /// @notice Address of the token (AERO) rewarded to stakers
     function rewardToken() external view returns (address);
 
     /// @notice Address of the FeesVotingReward contract linked to the gauge
     function feesVotingReward() external view returns (address);
 
-    /// @notice Address of Velodrome v2 Voter
+    /// @notice Address of Protocol Voter
     function voter() external view returns (address);
 
-    /// @notice Address of Velodrome v2 Team
+    /// @notice Address of Protocol Team
     function team() external view returns (address);
 
-    /// @notice Returns if gauge is linked to a legitimate Velodrome pool
+    /// @notice Returns if gauge is linked to a legitimate Protocol pool
     function isPool() external view returns (bool);
 
     /// @notice Timestamp end of current rewards period
