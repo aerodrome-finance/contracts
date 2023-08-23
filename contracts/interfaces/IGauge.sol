@@ -28,8 +28,8 @@ interface IGauge {
     /// @notice Address of Protocol Voter
     function voter() external view returns (address);
 
-    /// @notice Address of Protocol Team
-    function team() external view returns (address);
+    /// @notice Address of Velodrome v2 Voting Escrow
+    function ve() external view returns (address);
 
     /// @notice Returns if gauge is linked to a legitimate Protocol pool
     function isPool() external view returns (bool);

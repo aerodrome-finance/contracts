@@ -27,7 +27,7 @@ contract Gauge is IGauge, ERC2771Context, ReentrancyGuard {
     /// @inheritdoc IGauge
     address public immutable voter;
     /// @inheritdoc IGauge
-    address public immutable team;
+    address public immutable ve;
 
     /// @inheritdoc IGauge
     bool public immutable isPool;
@@ -72,7 +72,7 @@ contract Gauge is IGauge, ERC2771Context, ReentrancyGuard {
         rewardToken = _rewardToken;
         voter = _voter;
         isPool = _isPool;
-        team = IVotingEscrow(IVoter(voter).ve()).team();
+        ve = IVoter(voter).ve();
     }
 
     function _claimFees() internal returns (uint256 claimed0, uint256 claimed1) {
@@ -205,7 +205,7 @@ contract Gauge is IGauge, ERC2771Context, ReentrancyGuard {
     /// @inheritdoc IGauge
     function notifyRewardWithoutClaim(uint256 _amount) external nonReentrant {
         address sender = _msgSender();
-        if (sender != team) revert NotTeam();
+        if (sender != IVotingEscrow(ve).team()) revert NotTeam();
         if (_amount == 0) revert ZeroAmount();
         _notifyRewardAmount(sender, _amount);
     }
