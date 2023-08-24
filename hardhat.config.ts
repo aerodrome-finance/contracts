@@ -13,7 +13,11 @@ export default {
         hardhat: {
         },
         tenderly: {
-            url: `https://rpc.tenderly.co/fork/${process.env.TENDERLY_FORK_ID}`,
+            url: `${process.env.TENDERLY_RPC_URL}`,
+            accounts: [`${process.env.PRIVATE_KEY_DEPLOY}`]
+        },
+        base: {
+            url: `${process.env.BASE_RPC_URL}`,
             accounts: [`${process.env.PRIVATE_KEY_DEPLOY}`]
         }
     },
