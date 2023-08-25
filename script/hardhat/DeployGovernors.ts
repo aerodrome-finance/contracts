@@ -1,6 +1,6 @@
 import { getContractAt, deploy } from "./utils/helpers";
 import { ProtocolGovernor, EpochGovernor } from "../../artifacts/types";
-import jsonConstants from "../constants/Optimism.json";
+import jsonConstants from "../constants/Base.json";
 import deployedContracts from "../constants/output/ProtocolOutput.json";
 
 async function main() {

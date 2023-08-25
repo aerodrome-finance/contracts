@@ -28,6 +28,7 @@ jobs:
       - name: Run tests
         run: OUTPUT_FILENAME=ci.json CONSTANTS_FILENAME=Base.json AIRDROPS_FILENAME=airdrop-ci.json forge test -vvv
         env:
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
           OPTIMISM_RPC_URL: ${{ secrets.OPTIMISM_RPC_URL }}
           PRIVATE_KEY_DEPLOY: ${{ secrets.PRIVATE_KEY_DEPLOY }}
           

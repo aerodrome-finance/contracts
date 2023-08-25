@@ -13,6 +13,7 @@ contract DistributeAirdrops is Script {
     string public airdropFilename = vm.envString("AIRDROPS_FILENAME");
     string public outputFilename = vm.envString("OUTPUT_FILENAME");
     uint256 public WALLET_BATCH_SIZE = 50;
+    uint256 public MAX_AIRDROPS = 500;
     string public jsonConstants;
     string public basePath;
     string public path;
@@ -43,13 +44,15 @@ contract DistributeAirdrops is Script {
         AirdropInfo[] memory infos = abi.decode(jsonConstants.parseRaw(".airdrop"), (AirdropInfo[]));
 
         (address[] memory wallets, uint256[] memory amounts) = getArraysFromInfo(infos);
+        (wallets, amounts) = getArraySlice(wallets, amounts); // Only use first {MAX_AIRDROPS} elements of the arrays
         uint256 walletsLength = wallets.length;
         require(walletsLength == amounts.length, "Invalid parameters");
         uint256 sum;
         for (uint256 i = 0; i < walletsLength; i++) {
             sum += amounts[i];
         }
-        require(AERO.balanceOf(address(airdrop)) >= sum, "Not enough balance to proceed with airdrops");
+        uint256 aeroBal = AERO.balanceOf(address(airdrop));
+        if (sum > aeroBal) amounts[0] = amounts[0] - (sum - aeroBal); // remove dust from first airdrop if needed
 
         path = string.concat(basePath, "output/AirdropDistribution-");
         path = string.concat(path, outputFilename);
@@ -103,6 +106,24 @@ contract DistributeAirdrops is Script {
             AirdropInfo memory drop = infos[i];
             _wallets[i] = drop.wallet;
             _amounts[i] = drop.amount;
+        }
+    }
+
+    function getArraySlice(
+        address[] memory _wallets,
+        uint256[] memory _amounts
+    ) public view returns (address[] memory wallets, uint256[] memory amounts) {
+        if (MAX_AIRDROPS > _wallets.length) {
+            wallets = _wallets;
+            amounts = _amounts;
+        } else {
+            uint256 _len = MAX_AIRDROPS;
+            wallets = new address[](_len);
+            amounts = new uint256[](_len);
+            for (uint256 i = 0; i < _len; i++) {
+                wallets[i] = _wallets[i];
+                amounts[i] = _amounts[i];
+            }
         }
     }
 }

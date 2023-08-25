@@ -210,20 +210,20 @@ contract TestDeploy is BaseTest {
         airdropPath = string.concat(airdropPath, airdropFilename);
         jsonConstants = vm.readFile(airdropPath);
         infos = abi.decode(jsonConstants.parseRaw(".airdrop"), (DeployCore.AirdropInfo[]));
-        len = infos.length;
-        address[] memory wallets = new address[](len);
-        uint256[] memory amounts = new uint256[](len);
+        len = distributeAirdrops.MAX_AIRDROPS() < infos.length ? distributeAirdrops.MAX_AIRDROPS() : infos.length;
 
         // Validates all emissioned Locked NFTs
         uint256 firstAirdroppedToken = escrow.tokenId() - len;
+        address _wallet;
+        uint256 _amount;
         for (uint256 i = 0; i < len; i++) {
             DeployCore.AirdropInfo memory drop = infos[i];
-            wallets[i] = drop.wallet;
-            amounts[i] = drop.amount;
+            _wallet = drop.wallet;
+            _amount = drop.amount;
             tokenId = i + 1 + firstAirdroppedToken; // Skipping locks minted by Minter
-            assertEq(escrow.balanceOf(wallets[i]), 1);
+            assertEq(escrow.balanceOf(_wallet), 1);
             IVotingEscrow.LockedBalance memory locked = escrow.locked(tokenId);
-            assertEq(locked.amount.toUint256(), amounts[i]);
+            assertEq(locked.amount.toUint256(), _amount);
             assertTrue(locked.isPermanent);
             assertEq(locked.end, 0);
         }

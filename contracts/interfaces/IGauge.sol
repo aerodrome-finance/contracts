@@ -28,7 +28,7 @@ interface IGauge {
     /// @notice Address of Protocol Voter
     function voter() external view returns (address);
 
-    /// @notice Address of Velodrome v2 Voting Escrow
+    /// @notice Address of Protocol Voting Escrow
     function ve() external view returns (address);
 
     /// @notice Returns if gauge is linked to a legitimate Protocol pool

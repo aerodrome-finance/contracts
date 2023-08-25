@@ -114,7 +114,7 @@ In addition, the protocol supports "managed NFTs" (also known as an "(m)veNFT") 
 - Managed NFTs can be deactivated, a process which prevents the NFT from voting and from receiving deposits (requires emergency council).
 - An NFT can deposit into one managed NFT at a time, converting it from normal state to locked state. 
 - The deposited NFT can be withdrawn at any time, with its balance restored and locktime extended to the maximum (4 years). Any rebases collected by the manager will be distributed pro-rata to the user. 
-- For (m)veNFT implementations, refer to the official [repository](https://github.com/velodrome-finance/AutoCompounder).
+- For (m)veNFT implementations, refer to the official [repository](https://github.com/aerodrome-finance/relay/AutoCompounder).
 
 ### Minter
 

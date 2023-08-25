@@ -4,7 +4,7 @@ The Protocol deployment is a multi-step process.  Unlike testing, we cannot impe
 
 ### Environment setup
 1. Copy-pasta `.env.sample` into a new `.env` and set the environment variables. `PRIVATE_KEY_DEPLOY` is the private key to deploy all scripts.
-2. Copy-pasta `script/constants/TEMPLATE.json` into a new file `script/constants/{CONSTANTS_FILENAME}`. For example, "Optimism.json" in the .env would be a file of `script/constants/Optimism.json`.  Set the variables in the new file.
+2. Copy-pasta `script/constants/TEMPLATE.json` into a new file `script/constants/{CONSTANTS_FILENAME}`. For example, "Base.json" in the .env would be a file of `script/constants/Base.json`.  Set the variables in the new file.
 3. Copy-pasta `script/constants/AirdropTEMPLATE.json` into a new file `script/constants/{AIRDROPS_FILENAME}`. For example, "Airdrop.json" in the .env would be a file of `script/constants/Airdrop.json`.  Set the addresses and amounts in this file to setup the Airdrops to be distributed.
 
 4. Run tests to ensure deployment state is configured correctly:

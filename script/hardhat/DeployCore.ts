@@ -21,7 +21,7 @@ import {
   IERC20,
   ProtocolForwarder,
 } from "../../artifacts/types";
-import jsonConstants from "../constants/Optimism.json";
+import jsonConstants from "../constants/Base.json";
 
 interface ProtocolOutput {
   AirdropDistributor: string;

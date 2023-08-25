@@ -236,8 +236,8 @@ contract RewardsDistributorTest is BaseTest {
 
         skipToNextEpoch(0);
         minter.updatePeriod();
-        assertEq(distributor.claimable(tokenId), 4966371507343622027541916, "1");
-        assertEq(distributor.claimable(tokenId2), 4966371507343622027541916, "2");
+        assertEq(distributor.claimable(tokenId), 4966371507343622027541916);
+        assertEq(distributor.claimable(tokenId2), 4966371507343622027541916);
 
         uint256 pre = convert(escrow.locked(tokenId).amount);
         vm.expectEmit(true, true, true, true, address(distributor));
@@ -245,7 +245,7 @@ contract RewardsDistributorTest is BaseTest {
         distributor.claim(tokenId);
         uint256 post = convert(escrow.locked(tokenId).amount);
 
-        assertEq(post - pre, 4966371507343622027541916, "4");
+        assertEq(post - pre, 4966371507343622027541916);
     }
 
     function testClaimWithIncreaseAmountOnEpochFlip() public {
