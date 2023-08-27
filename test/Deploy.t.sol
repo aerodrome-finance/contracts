@@ -131,7 +131,7 @@ contract TestDeploy is BaseTest {
         uint256 tokenId;
         for (uint256 i = 0; i < len; i++) {
             tokenId = i + 1;
-            assertEq(deployCore.escrow().balanceOf(lockedWallets[i]), 1);
+            assertEq(deployCore.escrow().ownerOf(tokenId), lockedWallets[i]);
             IVotingEscrow.LockedBalance memory locked = deployCore.escrow().locked(tokenId);
             assertEq(locked.amount.toUint256(), lockedAmounts[i]);
             assertTrue(locked.isPermanent);
@@ -221,7 +221,7 @@ contract TestDeploy is BaseTest {
             _wallet = drop.wallet;
             _amount = drop.amount;
             tokenId = i + 1 + firstAirdroppedToken; // Skipping locks minted by Minter
-            assertEq(escrow.balanceOf(_wallet), 1);
+            assertEq(escrow.ownerOf(tokenId), _wallet);
             IVotingEscrow.LockedBalance memory locked = escrow.locked(tokenId);
             assertEq(locked.amount.toUint256(), _amount);
             assertTrue(locked.isPermanent);
