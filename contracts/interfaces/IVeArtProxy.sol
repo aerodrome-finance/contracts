@@ -22,7 +22,7 @@ interface IVeArtProxy {
 
     /// @dev Individual line art path variables.
     struct lineConfig {
-        bytes8 color;
+        string color;
         uint256 stroke;
         uint256 offset;
         uint256 offsetHalf;

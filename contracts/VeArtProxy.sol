@@ -13,33 +13,28 @@ import {IVotingEscrow} from "./interfaces/IVotingEscrow.sol";
 /// @notice Official art proxy to generate Protocol veNFT artwork
 contract VeArtProxy is IVeArtProxy {
 
-    bytes16 private constant _SYMBOLS = "0123456789abcdef";
+    bytes16 private constant _SYMBOLS    = "0123456789abcdef";
     uint256 private constant PI          = 3141592653589793238;
     uint256 private constant TWO_PI      = 2 * PI;
-    uint256 private constant DASH = 50;
-    uint256 private constant DASH_HALF = 25;
+    uint256 private constant DASH        = 50;
+    uint256 private constant DASH_HALF   = 25;
 
     IVotingEscrow public immutable ve;
 
     /// @dev art palette color codes used in drawing lines
-    bytes8[5][10] palettes =
-        [[bytes8('#E0A100'),'#CC9200','#A37500','#3C4150','#A3A3A3'], // yellow-gold
-        [bytes8('#D40D0D'),'#A10808','#750606','#3C4150','#A3A3A3'], //red
-        [bytes8('#03444C'),'#005F6B','#008C9E','#3C4150','#A3A3A3'], //teal
-        [bytes8('#1A50F1'),'#1740BB','#102F8B','#3C4150','#A3A3A3'], //blue
-        [bytes8('#C5BC8E'),'#696758','#45484b','#3C4150','#A3A3A3'], //silver
-        [bytes8('#FD5821'),'#F23E02','#CA3402','#3C4150','#A3A3A3'], //amber
-        [bytes8('#b48610'),'#123291','#cf3502','#3C4150','#A3A3A3'], //aerodrome
-        [bytes8('#719E04'),'#8DB92E','#A9D54C','#3C4150','#A3A3A3'], //green
-        [bytes8('#110E07'),'#110E07','#3A3935','#3C4150','#A3A3A3'], //black
-        [bytes8('#CC1455'),'#A71145','#820D36','#3C4150','#A3A3A3']]; //pink
+    string[5][10] palettes =
+        [['#F5F3E6','#DDDBCF','#C6C5BA','#B1B0A6','#9D9B93'], //beije
+        ['#FF1100','#E60F02','#CF0F04','#B90E06','#A40D09'], //red
+        ['#9CADFF','#8D9CE6','#7E8CCF','#717DB8','#646EA3'], //light-blue
+        ['#0433FF','#042EE6','#0429CF','#0325B8','#0221A3'], //blue
+        ['#F1ECE2','#DAD6CE','#C4C0BC','#8E8C8E','#7E7D81'], //silver
+        ['#E76F4B','#D06443','#BB5A3C','#A75036','#944730'], //amber
+        ['#FF1100','#C9D0F2','#9CADFF','#0433FF','#0C0D1D'], //random
+        ['#77587A','#6B506E','#604763','#564058','#4C384E'], //violet
+        ['#110E07','#1B2538','#020617','#010513','#000000'], //black
+        ['#B58C8C','#AC8585','#9A7777','#8A6A6A','#7A5E5E']]; //pink
 
-    bytes2[5] lineThickness =
-        [bytes2('0'),
-        '1',
-        '1',
-        '2',
-        '2'];
+    uint8[5] lineThickness = [0, 2, 2, 5, 5];
 
     constructor(address _ve) {
         ve = IVotingEscrow(_ve);
@@ -48,42 +43,72 @@ contract VeArtProxy is IVeArtProxy {
     /// @inheritdoc IVeArtProxy
     function tokenURI (uint256 _tokenId) external view returns (string memory output) {
         Config memory cfg = generateConfig(_tokenId);
+        output = Base64.encode(
+            bytes(
+                string(
+                    abi.encodePacked(
+                        '<svg preserveAspectRatio="xMinYMin meet" viewBox="0 0 4000 4000" fill="none" xmlns="http://www.w3.org/2000/svg">',
+                        generateShape(cfg),
+                        '</svg>'
+                    )
+                )
+            )
+        );
 
-        output = string(
+        string memory date;
+        if(cfg._lockedEnd == 0) {
+            if(cfg._lockedAmount == 0) {
+                date = '"Expired"';
+            } else {
+                date = '"Permanent"';
+            }
+        } else {
+            uint256 year;
+            uint256 month;
+            uint256 day;
+            (year, month, day) = BokkyPooBahsDateTimeLibrary.timestampToDate(uint256(cfg._lockedEnd));
+            date = string(abi.encodePacked('"', toString(year), '-', toString(month), '-', toString(day), '"'));
+        }
+
+        string memory attributes = string(
             abi.encodePacked(
-                '<svg width="350" height="350" viewBox="0 0 4000 4000" fill="none" xmlns="http://www.w3.org/2000/svg">',
-                generateShape(cfg),
-                '</svg>')
-            );
+                '{',
+                    '"trait_type": "Unlock Date",',
+                    '"value": ', date,
+                '},'
+            )
+        );
 
-        string memory readableBalance = tokenAmountToString(uint256(cfg._balanceOf));
-        string memory readableAmount = tokenAmountToString(uint256(cfg._lockedAmount));
-
-        uint256 year;
-	    uint256 month;
-	    uint256 day;
-        (year, month, day) = BokkyPooBahsDateTimeLibrary.timestampToDate(uint256(cfg._lockedEnd));
-
-        string memory attributes = string(abi.encodePacked(
-	        '{ "trait_type": "Unlock Date", "value": "',
-	            toString(year), '-', toString(month), '-', toString(day),
-	            '"}, ',
-	        '{ "trait_type": "Voting Power", "value": "',
-	            readableBalance,
-	            '"}, ',
-	        '{ "trait_type": "Locked AERO", "value": "',
-	            readableAmount, '"}'
-        ));
+        // stack too deep
+        attributes = string(
+            abi.encodePacked(
+                attributes,
+                '{',
+                    '"trait_type": "Voting Power",',
+                    '"value": ', toString(cfg._balanceOf / 1e18),
+	            '},',
+	            '{',
+                    '"trait_type": "Locked AERO",'
+                    '"value": ', toString(cfg._lockedAmount / 1e18),
+                '},'
+                '{',
+                    '"display_type": "number",',
+                    '"trait_type": "Number of Digits",',
+                    '"value": ', toString(numBalanceDigits(uint256(cfg._balanceOf))),
+                '}'
+            )
+        );
 
         string memory json = Base64.encode(
 		    bytes(
                 string(
                     abi.encodePacked(
-			            '{"name": "lock #',
-                        toString(cfg._tokenId),
-                        '", "background_color": "121a26", "description": "Aerodrome Finance is a next-generation AMM that combines the best of Curve, Solidly and Uniswap, designed to serve as a central liquidity hub. Protocol NFTs vote on token emissions and receive bribes and fees generated by the protocol.", "image": "data:image/svg+xml;base64,',
-                        Base64.encode(bytes(output)), '", ',
-                        '"attributes": [', attributes, ']',
+                        '{',
+                            '"name": "lock #', toString(cfg._tokenId),'",',
+                            '"background_color": "121a26",',
+                            '"description": "Aerodrome Finance is a next-generation AMM that combines the best of Curve, Convex and Uniswap, designed to serve as the Optimism central liquidity hub. Aerodrome NFTs vote on token emissions and receive bribes and fees generated by the protocol.",',
+                            '"image_data": "data:image/svg+xml;base64,', output, '",',
+                            '"attributes": [', attributes, ']',
 			            '}'
                     )
                 )
@@ -175,9 +200,10 @@ contract VeArtProxy is IVeArtProxy {
 
     /// @dev Determines the number of lines in the SVG. NFTs with less than 10 veAERO balance have zero lines.
     function getLineCount (uint256 _balanceOf) internal pure returns (int256 lineCount) {
-        int256 threshhold = 2;
-        lineCount = 4 * numBalanceDigits(_balanceOf);
-        if (numBalanceDigits(_balanceOf) < threshhold) {
+        int256 threshold = 2;
+        int256 balDigits = numBalanceDigits(_balanceOf);
+        lineCount = 2 * balDigits;
+        if (balDigits < threshold) {
             lineCount = 0;
         }
     }
@@ -187,9 +213,9 @@ contract VeArtProxy is IVeArtProxy {
         palette = uint256(keccak256(abi.encodePacked(_tokenId))) % 10;
     }
 
-/*---
-Line Art Generation
----*/
+    /*---
+    Line Art Generation
+    ---*/
 
     function drawTwoStripes (Config memory cfg) internal view returns (bytes memory shape) {
         for (int256 l = 0; l < cfg.maxLines; l++) {
@@ -384,9 +410,9 @@ Line Art Generation
         }
     }
 
-/*---
-SVG Formatting
----*/
+    /*---
+    SVG Formatting
+    ---*/
 
     /// @dev Converts an array of Point structs into an animated SVG path.
     function curveToSVG (int256 l, Config memory cfg, Point[100] memory Line) internal view returns (bytes memory SVGLine) {
@@ -428,8 +454,8 @@ SVG Formatting
                 toString(linecfg.offsetDashSum), ';',
                 ' stroke: ',
                 linecfg.color, ';',
-                ' stroke-width:',
-                lineThickness[linecfg.stroke], '%',';" pathLength="',
+                ' stroke-width: 0.',
+                toString(lineThickness[linecfg.stroke]), '%',';" pathLength="',
                 toString(linecfg.pathLength), '">',
                 '<animate attributeName="stroke-dashoffset" values="0;',
                 toString(linecfg.offsetDashSum), '" ',
@@ -438,28 +464,9 @@ SVG Formatting
         }
     }
 
-/*---
-Utility
----*/
-
-    /// @dev Converts token amount to string with one decimal place.
-    function tokenAmountToString(uint256 value) internal pure returns (string memory) {
-        uint256 leftOfDecimal = value / 10**18;
-        uint256 residual = value % 10**18;
-        // show one decimal place
-        uint256 rightOfDecimal = residual / 10**17;
-        string memory s;
-        if (residual > 0) {
-            s = string(abi.encodePacked(toString(leftOfDecimal), ".", toString(rightOfDecimal)));
-         } else {
-            s = toString(leftOfDecimal);
-        }
-        return s;
-    }
-
-/*---
-OpenZeppelin Functions
----*/
+    /*---
+    OpenZeppelin Functions
+    ---*/
 
     /**
      * @dev Converts a `int256` to its ASCII `string` decimal representation.
