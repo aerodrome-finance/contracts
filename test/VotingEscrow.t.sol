@@ -2149,7 +2149,7 @@ contract VotingEscrowTest is BaseTest {
 
     /// invariant checks
     /// bound timestamp between 1600000000 and 100 years from then
-    /// current optimism timestamp >= 1600000000
+    /// current base timestamp >= 1600000000
     function testBalanceOfNFTWithPermanentLocks(uint256 timestamp) public {
         vm.warp(1600000000);
         timestamp = bound(timestamp, 1600000000, 1600000000 + (52 weeks) * 100);

@@ -51,15 +51,10 @@
 ### Who
 
 #### Protocol Team
- Multisig at [0xBA4BB89f4d1E66AA86B60696534892aE0cCf91F5](https://optimistic.etherscan.io/address/0xBA4BB89f4d1E66AA86B60696534892aE0cCf91F5)
-- Threshold: 3/7
-- TODO: Who owns every address?
+ Multisig at [0xE6A41fE61E7a1996B59d508661e3f524d6A32075](https://basescan.org/address/0xe6a41fe61e7a1996b59d508661e3f524d6a32075)
 
 #### EmergencyCouncil
-Multisig at [0x838352F4E3992187a33a04826273dB3992Ee2b3f](https://optimistic.etherscan.io/address/0x838352F4E3992187a33a04826273dB3992Ee2b3f)
-- Threshold: 5/6
-- TODO: Who owns every address?
-
+Multisig at [0x99249b10593fCa1Ae9DAE6D4819F1A6dae5C013D](https://basescan.org/address/0x99249b10593fCa1Ae9DAE6D4819F1A6dae5C013D)
 #### Vetoer
 Protocol team at deployment of ProtocolGovernor. At a later date, this role will be renounced.
 
@@ -84,19 +79,19 @@ Protocol team
 ## Permissions List
 This is an exhaustive list of all admin permissions in the protocol, sorted by the contract they are stored in.
 
-#### [PoolFactory](https://optimistic.etherscan.io/address/0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a#code)
+#### [PoolFactory](https://basescan.org/address/0x420DD381b31aEf6683db6B902084cB0FFECe40Da#code)
 - Pauser
     - Controls pause state of swaps on UniswapV2 pools created by this factory.  Users are still freely able to add/remove liquidity
     - Can set Pauser role
 - FeeManager
     - Controls default and custom fees for stable / volatile pools.
 
-#### [FactoryRegistry](https://optimistic.etherscan.io/address/0xF4c67CdEAaB8360370F41514d06e32CcD8aA1d7B#code)
+#### [FactoryRegistry](https://basescan.org/address/0x5C3F18F06CC09CA1910767A34a20F771039E37C0#code)
 - Owner
     - Can approve / unapprove new pool / gauge / reward factory combinations.
     - This is used to add new pools, gauges or reward factory combinations. These new pools / gauges / rewards factories may have different code to existing implementations.
 
-#### [Minter](https://optimistic.etherscan.io/address/0x6dc9E1C04eE59ed3531d73a72256C0da46D10982#code)
+#### [Minter](https://basescan.org/address/0xeB018363F0a9Af8f91F06FEe6613a751b2A33FE5#code)
 - Team
     - Can set PendingTeam in Minter
     - Can accept itself as team in Minter (requires being set as pendingTeam by previous team)
@@ -110,7 +105,7 @@ This is an exhaustive list of all admin permissions in the protocol, sorted by t
     - Can veto proposals.
     - Can renounce vetoer role.
 
-#### [Voter](https://optimistic.etherscan.io/address/0x41C914ee0c7E1A5edCD0295623e6dC557B5aBf3C#code)
+#### [Voter](https://basescan.org/address/0x16613524e02ad97eDfeF371bC883F2F5d6C480A5#code)
 - Governor
     - Can set governor in Voter.
     - Can set epochGovernor in Voter.
@@ -130,7 +125,7 @@ This is an exhaustive list of all admin permissions in the protocol, sorted by t
     - Can set a custom name or symbol for a Uniswap V2 pool.
     - Can activate or deactivate managed NFTs in VotingEscrow.
 
-#### [VotingEscrow](https://optimistic.etherscan.io/address/0xFAf8FD17D9840595845582fCB047DF13f006787d#code)
+#### [VotingEscrow](https://basescan.org/address/0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4#code)
 - Team
     - Can set team in VotingEscrow
     - Can set artProxy in VotingEscrow.
@@ -144,11 +139,11 @@ This is an exhaustive list of all admin permissions in the protocol, sorted by t
 ## Contract Roles and Abilities
 In addition to defined admin roles, various contracts within the protocol have unique permissions in calling other contracts.  These permissions are immutable.
 
-#### [Minter](https://optimistic.etherscan.io/address/0x6dc9E1C04eE59ed3531d73a72256C0da46D10982#code)
+#### [Minter](https://basescan.org/address/0xeB018363F0a9Af8f91F06FEe6613a751b2A33FE5#code)
 - Can mint AERO and distribute to Voter for gauge emissions and RewardsDistributor for claimable rebases
     - `Minter.updatePeriod()`
 
-#### [Voter](https://optimistic.etherscan.io/address/0x41C914ee0c7E1A5edCD0295623e6dC557B5aBf3C#code)
+#### [Voter](https://basescan.org/address/0x16613524e02ad97eDfeF371bC883F2F5d6C480A5#code)
 - Can distribute AERO emissions to gauges
     - `Voter.distribute()`
 - Can claim fees and rewards earned by Normal veNFTs
@@ -165,7 +160,7 @@ In addition to defined admin roles, various contracts within the protocol have u
     - `Voter.vote()`
     - `Voter.reset()`
 
-#### [VotingEscrow](https://optimistic.etherscan.io/address/0xFAf8FD17D9840595845582fCB047DF13f006787d#code)
+#### [VotingEscrow](https://basescan.org/address/0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4#code)
 - Can deposit balances into `LockedManagedReward`
     - `VotingEscrow.depositManaged()`
 - Can deposit balances into `FreeManagedReward`
@@ -176,6 +171,6 @@ In addition to defined admin roles, various contracts within the protocol have u
     - `VotingEscrow.increaseAmount()`
     - `VotingEscrow.depositFor()`
 
-#### [Pool](https://optimistic.etherscan.io/address/0x95885af5492195f0754be71ad1545fe81364e531#code)
+#### [Pool](https://basescan.org/address/0xA4e46b4f701c62e14DF11B48dCe76A7d793CD6d7#code)
 - Can claim the fees accrued from trades
     - `Pool.claimFees()`

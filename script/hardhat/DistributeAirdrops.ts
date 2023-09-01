@@ -6,7 +6,7 @@ import * as fs from "fs";
 import Decimal from "decimal.js";
 
 async function main() {
-  const BATCH_SIZE = 50;
+  const BATCH_SIZE = 10;
 
   // parse contract
   const root = path.resolve(__dirname, "../");
@@ -33,9 +33,9 @@ async function main() {
     new Decimal(0)
   );
   const expected = new Decimal(200_000_000 * 1e18);
-  const diff = sum.minus(expected); // calculate difference, will be dust
-  if (sum > expected) {
-    values[0] = new Decimal(values[0]).minus(diff); // remove from very first  value
+  if (sum.greaterThan(expected)) {
+    const diff = sum.minus(expected); // calculate difference, will be dust
+    values[0] = values[0].minus(diff); // remove from very first value
   }
 
   const amounts: string[] = values.map((entry: Decimal) => entry.toFixed()); // remove scientific notation
@@ -48,8 +48,8 @@ async function main() {
 
     const feeData: ethers.types.FeeData = await ethers.provider.getFeeData();
     const tx = await distributor.distributeTokens(addressBatch, amountBatch, {
-      gasLimit: 30_000_000,
-      maxPriorityFeePerGas: feeData.lastBaseFeePerGas,
+      gasLimit: 15000000,
+      maxPriorityFeePerGas: feeData.lastBaseFeePerGas.div(50),
     });
 
     count++;
@@ -58,9 +58,9 @@ async function main() {
     await tx.wait();
     console.log("Transaction confirmed:", tx.hash);
   }
-}
 
-// manually renounce ownership
+  await distributor.renounceOwnership();
+}
 
 main().catch((error) => {
   console.error(error);
