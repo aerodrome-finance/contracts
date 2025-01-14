@@ -48,7 +48,7 @@ Responsible for pool creation and management. It facilitates creating and fetchi
 
 ### Router
 
-Standard UniswapV2-like Router interface. Supports multi-pool swaps, lp deposits 
+Standard UniswapV2-like Router interface. Supports multi-pool swaps, lp deposits  
 and withdrawals. Zapping support is provided for standard
  ERC20 tokens only (i.e. there is no support for fee-on-transfer tokens etc).
 
@@ -79,10 +79,10 @@ clock mode is timestamps (see EIP-6372). Metadata updates (EIP-4906) are also su
 
 There are three states that veAERO NFTs can be in: `NORMAL`, `LOCKED`, `MANAGED`.
 `NORMAL` NFTs are the NFTs that users are familiar with. `Managed` NFTs are a new
-type of NFT (see below). When a user deposits a normal NFT into a managed NFT, it
+type of NFT (see below). When a user deposits  a normal NFT into a managed NFT, it
 becomes a `LOCKED` NFT. `NORMAL` NFTs are not restricted in functionality whereas
 `LOCKED` NFTs have extremely restricted functionality and `MANAGED` NFTs have
-limited functionality. Managed NFT deposits and withdrawals are handled by `Voter`.
+limited functionality. Managed NFT deposits  and withdrawals are handled by `Voter`.
 
 Normal NFTs can also be in a new state that is known as a permanent lock. While 
 permanently locked, normal NFTs will have voting power that will be equal to the
@@ -102,8 +102,8 @@ All of these operations require ownership of the underlying NFT or tokens being 
 - Can withdraw escrowed AERO tokens once the NFT lock expires (requires normal NFT). 
 - Can add to an existing NFT position by escrowing additional AERO tokens (requires normal or normal permanent or managed NFT).
 - Can increase the lock duration of an NFT (and thus increasing voting power, requires normal NFT).
-- Can permanent lock a NFT to lock its voting power at the maximum and prevent decay (requires normal NFT).
-- Can unlock a permanently locked NFT to allow its voting power to decay (requires normal permanent NFT).
+- Can permanent lock a NFT to lock its  voting power at the maximum and prevent decay (requires normal NFT).
+- Can unlock a permanently locked NFT to allow its  voting power to decay (requires normal permanent NFT).
 - Can delegate votes to other `tokenId`s for use in Protocol governance to other addresses based on voting power (requires normal permanent or managed NFT). Voting power retrieved from `getVotes` and `getPastVotes` does not reveal locked amount balances and are used only for voting. 
 
 See `VOTINGESCROW.md` for a visual respresentation.
@@ -111,9 +111,9 @@ See `VOTINGESCROW.md` for a visual respresentation.
 In addition, the protocol supports "managed NFTs" (also known as an "(m)veNFT") which aggregates NFT voting power whilst perpetually locking the underlying tokens. These NFTs function as a single NFT, with rewards accrued by the NFT going to the manager, who can then distribute (net of fees) to the depositors. These NFTs are permanently locked by default.
 - NFTs can exist in one of three states: normal, locked or managed. By default, they are in normal state.
 - Only governance or an allowed manager can create managed NFTs, special NFTs in the managed state.
-- Managed NFTs can be deactivated, a process which prevents the NFT from voting and from receiving deposits (requires emergency council).
+- Managed NFTs can be deactivated, a process which prevents the NFT from voting and from receiving deposits  (requires emergency council).
 - An NFT can deposit into one managed NFT at a time, converting it from normal state to locked state. 
-- The deposited NFT can be withdrawn at any time, with its balance restored and locktime extended to the maximum (4 years). Any rebases collected by the manager will be distributed pro-rata to the user. 
+- The deposited NFT can be withdrawn at any time, with its  balance restored and locktime extended to the maximum (4 years). Any rebases collected by the manager will be distributed pro-rata to the user. 
 - For (m)veNFT implementations, refer to the official [repository](https://github.com/aerodrome-finance/relay/AutoCompounder).
 
 ### Minter
@@ -143,9 +143,9 @@ ve(NFT) art proxy contract, exists for upgradability purposes.
 
 ## AirdropDistributor
 The Airdrop distribution contract handles the emissions of permanently locked veNFTs.
-These distributions can only be emitted by its deployer and its parameters are in the form of
+These distributions can only be emitted by its  deployer and its  parameters are in the form of
 arrays of addresses and amounts, which are later paired together and used to distribute each
-amount to its corresponding address.
+amount to its  corresponding address.
 
 ## Protocol
 
@@ -166,11 +166,11 @@ in the same epoch that you vote, you also cannot withdraw your NFT in the same
 epoch that you deposited.
 
 Voting power of a managed NFT syncs every time a normal NFT is deposited or withdrawn into it.  In the 
-event the managed NFT has its' last remaining normal NFT withdrawn, the vote of the managed NFT will be reset.  If
+event the managed NFT has its ' last remaining normal NFT withdrawn, the vote of the managed NFT will be reset.  If
 the managed NFT had already voted in the epoch, the vote will reset and the managed NFT will have the ability to re-vote if
 a normal veNFT is locked into the managed veNFT.
 
-`Voter` is in charge of creating and mantaining gauge liveness states. Gauges that 
+`Voter` is in charge of creating and maintaining  gauge liveness states. Gauges that 
 are killed will not receive emissions. Once per epoch, the corresponding gauge for 
 a pool will receive emissions from `Voter` proportionate to the amount of votes they 
 receive. Voter also contains several utility functions that make claiming rewards or 
@@ -193,7 +193,7 @@ Standard Operations:
 
 ### Gauge
 
-The gauge contract is a standard rewards contract in charge of distributing emissions to LP depositors. Users that deposit LP tokens can forgo their fee reward in exchange for a proportional distribution of emissions (proportional to their share of LP deposits in the gauge). The fee rewards that the LP depositors forgo are transferred to the `FeeVotingReward` contract. 
+The gauge contract is a standard rewards contract in charge of distributing emissions to LP depositors. Users that deposit LP tokens can forgo their fee reward in exchange for a proportional distribution of emissions (proportional to their share of LP deposits  in the gauge). The fee rewards that the LP depositors forgo are transferred to the `FeeVotingReward` contract. 
 
 Standard Operations:
 - Can deposit LP tokens.
@@ -204,7 +204,7 @@ Standard Operations:
 
 ### Reward
 
-The base reward contract for all reward contracts. Individual voting balance checkpoints and total supply checkpoints are created in a reward contract whenever a user votes for a pool. Checkpoints do not automatically update when voting power decays (requires `Voter.poke`). Rewards in these contracts are distributed proportionally to an NFT's voting power contribution to a pool. An NFT is distributed rewards in each epoch proportional to its voting power contribution in that epoch. 
+The base reward contract for all reward contracts. Individual voting balance checkpoints and total supply checkpoints are created in a reward contract whenever a user votes for a pool. Checkpoints do not automatically update when voting power decays (requires `Voter.poke`). Rewards in these contracts are distributed proportionally to an NFT's voting power contribution to a pool. An NFT is distributed rewards in each epoch proportional to its  voting power contribution in that epoch. 
 
 ### VotingReward
 
