@@ -89,7 +89,7 @@ other recipients of the licensed work to be provided by Licensor:
 
 3. To specify a Change Date.
 
-4. Not to modify this License in any other way.
+4. Not to modify this License in any other way
 
 -----------------------------------------------------------------------------
 
