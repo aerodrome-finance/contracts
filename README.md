@@ -75,10 +75,10 @@ In order to run mainnet fork tests against base, inherit `BaseTest` in `BaseTest
 
 ## Deployment
 
-See `script/README.md` for more detail.
+See `script/README.md` for more details.
 
 ### Access Control
-See `PERMISSIONS.md` for more detail.
+See `PERMISSIONS.md` for more details.
 
 ## Licensing
 
