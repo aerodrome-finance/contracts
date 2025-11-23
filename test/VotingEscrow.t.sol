@@ -2229,6 +2229,107 @@ contract VotingEscrowTest is BaseTest {
         escrow.setArtProxy(address(artProxy2));
     }
 
+    function testSetTeam() public {
+        assertEq(escrow.team(), address(owner));
+        escrow.setTeam(address(owner2));
+        assertEq(escrow.team(), address(owner2));
+    }
+
+    function testCannotSetTeamIfNotTeam() public {
+        vm.prank(address(owner2));
+        vm.expectRevert(IVotingEscrow.NotTeam.selector);
+        escrow.setTeam(address(owner3));
+    }
+
+    function testSetApprovalForAll() public {
+        assertFalse(escrow.isApprovedForAll(address(owner), address(owner2)));
+        escrow.setApprovalForAll(address(owner2), true);
+        assertTrue(escrow.isApprovedForAll(address(owner), address(owner2)));
+        escrow.setApprovalForAll(address(owner2), false);
+        assertFalse(escrow.isApprovedForAll(address(owner), address(owner2)));
+    }
+
+    function testSafeTransferFrom() public {
+        AERO.approve(address(escrow), TOKEN_1);
+        uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
+        skipAndRoll(1);
+
+        escrow.safeTransferFrom(address(owner), address(owner2), tokenId);
+        assertEq(escrow.ownerOf(tokenId), address(owner2));
+        assertEq(escrow.balanceOf(address(owner)), 0);
+        assertEq(escrow.balanceOf(address(owner2)), 1);
+    }
+
+    function testSafeTransferFromWithData() public {
+        AERO.approve(address(escrow), TOKEN_1);
+        uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
+        skipAndRoll(1);
+
+        escrow.safeTransferFrom(address(owner), address(owner2), tokenId, "0x");
+        assertEq(escrow.ownerOf(tokenId), address(owner2));
+    }
+
+    function testCreateLockFor() public {
+        AERO.approve(address(escrow), TOKEN_1);
+        uint256 tokenId = escrow.createLockFor(TOKEN_1, MAXTIME, address(owner2));
+        assertEq(escrow.ownerOf(tokenId), address(owner2));
+        assertEq(escrow.balanceOf(address(owner2)), 1);
+        assertEq(uint256(escrow.escrowType(tokenId)), uint256(IVotingEscrow.EscrowType.NORMAL));
+    }
+
+    function testToggleSplitForSpecificAddress() public {
+        assertFalse(escrow.canSplit(address(owner)));
+        escrow.toggleSplit(address(owner), true);
+        assertTrue(escrow.canSplit(address(owner)));
+        escrow.toggleSplit(address(owner), false);
+        assertFalse(escrow.canSplit(address(owner)));
+    }
+
+    function testClock() public {
+        assertEq(escrow.clock(), block.timestamp);
+    }
+
+    function testCLOCK_MODE() public {
+        assertEq(escrow.CLOCK_MODE(), "mode=timestamp");
+    }
+
+    function testSetAllowedManager() public {
+        assertEq(escrow.allowedManager(), address(owner));
+        escrow.setAllowedManager(address(owner2));
+        assertEq(escrow.allowedManager(), address(owner2));
+    }
+
+    function testCannotSetAllowedManagerIfNotGovernor() public {
+        vm.prank(address(owner2));
+        vm.expectRevert(IVotingEscrow.NotGovernor.selector);
+        escrow.setAllowedManager(address(owner3));
+    }
+
+    function testSetManagedState() public {
+        skipAndRoll(1 hours);
+        uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
+        assertFalse(escrow.deactivated(mTokenId));
+        escrow.setManagedState(mTokenId, true);
+        assertTrue(escrow.deactivated(mTokenId));
+        escrow.setManagedState(mTokenId, false);
+        assertFalse(escrow.deactivated(mTokenId));
+    }
+
+    function testCannotSetManagedStateIfNotManagedNFT() public {
+        AERO.approve(address(escrow), TOKEN_1);
+        uint256 tokenId = escrow.createLock(TOKEN_1, MAXTIME);
+        vm.expectRevert(IVotingEscrow.NotManagedNFT.selector);
+        escrow.setManagedState(tokenId, true);
+    }
+
+    function testCannotSetManagedStateIfNotEmergencyCouncilOrGovernor() public {
+        skipAndRoll(1 hours);
+        uint256 mTokenId = escrow.createManagedLockFor(address(owner2));
+        vm.prank(address(owner2));
+        vm.expectRevert(IVotingEscrow.NotEmergencyCouncilOrGovernor.selector);
+        escrow.setManagedState(mTokenId, true);
+    }
+
     function testSetArtProxy() public {
         assertEq(escrow.artProxy(), address(artProxy));
         VeArtProxy artProxy2 = new VeArtProxy(address(escrow));
