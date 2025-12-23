@@ -59,7 +59,7 @@ abstract contract BaseTest is Base, TestOwner {
 
     uint256 fork;
     /// @dev set BASE_RPC_URL in .env to run mainnet tests
-    string RPC_URL = vm.envString("BASE_RPC_URL");
+    string RPC_URL = vm.envOr("BASE_RPC_URL", string(""));
     /// @dev optionally set FORK_BLOCK_NUMBER in .env / test set up for faster tests / fixed tests
     uint256 BLOCK_NUMBER = vm.envOr("FORK_BLOCK_NUMBER", uint256(0));
 

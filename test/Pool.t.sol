@@ -820,4 +820,125 @@ contract PoolTest is BaseTest {
         vm.expectRevert(IPool.NotEmergencyCouncil.selector);
         pool.setSymbol("Some new symbol");
     }
+
+    function testGetK() external {
+        deployPoolCoins();
+        mintAndBurnTokensForPoolFraxUsdc();
+
+        uint256 k = pool.getK();
+        assertGt(k, 0);
+    }
+
+    function testGetReserves() external {
+        deployPoolCoins();
+        mintAndBurnTokensForPoolFraxUsdc();
+
+        (uint256 reserve0, uint256 reserve1, uint256 blockTimestampLast) = pool.getReserves();
+        assertGt(reserve0, 0);
+        assertGt(reserve1, 0);
+        assertEq(blockTimestampLast, block.timestamp);
+    }
+
+    function testCurrentCumulativePrices() external {
+        deployPoolCoins();
+        mintAndBurnTokensForPoolFraxUsdc();
+
+        (uint256 reserve0Cumulative, uint256 reserve1Cumulative, uint256 blockTimestamp) = pool.currentCumulativePrices();
+        assertGe(reserve0Cumulative, 0);
+        assertGe(reserve1Cumulative, 0);
+        assertEq(blockTimestamp, block.timestamp);
+    }
+
+    function testQuote() external {
+        deployPoolCoins();
+        mintAndBurnTokensForPoolFraxUsdc();
+
+        uint256 amountOut = pool.quote(address(USDC), USDC_1, 1);
+        assertGt(amountOut, 0);
+    }
+
+    function testPrices() external {
+        deployPoolCoins();
+        mintAndBurnTokensForPoolFraxUsdc();
+
+        uint256[] memory prices = pool.prices(address(USDC), USDC_1, 1);
+        assertEq(prices.length, 1);
+        assertGt(prices[0], 0);
+    }
+
+    function testSample() external {
+        deployPoolCoins();
+        mintAndBurnTokensForPoolFraxUsdc();
+
+        uint256[] memory prices = pool.sample(address(USDC), USDC_1, 1, 1);
+        assertEq(prices.length, 1);
+        assertGt(prices[0], 0);
+    }
+
+    function testSkim() external {
+        deployPoolCoins();
+        mintAndBurnTokensForPoolFraxUsdc();
+
+        // Add extra tokens to pool
+        USDC.transfer(address(pool), USDC_1);
+        FRAX.transfer(address(pool), TOKEN_1);
+
+        uint256 poolUSDCBefore = USDC.balanceOf(address(pool));
+        uint256 poolFRAXBefore = FRAX.balanceOf(address(pool));
+
+        pool.skim(address(owner));
+
+        uint256 poolUSDCAfter = USDC.balanceOf(address(pool));
+        uint256 poolFRAXAfter = FRAX.balanceOf(address(pool));
+
+        assertEq(poolUSDCAfter, pool.reserve0());
+        assertEq(poolFRAXAfter, pool.reserve1());
+    }
+
+    function testSync() external {
+        deployPoolCoins();
+        mintAndBurnTokensForPoolFraxUsdc();
+
+        // Add extra tokens to pool
+        USDC.transfer(address(pool), USDC_1);
+        FRAX.transfer(address(pool), TOKEN_1);
+
+        uint256 reserve0Before = pool.reserve0();
+        uint256 reserve1Before = pool.reserve1();
+
+        pool.sync();
+
+        uint256 reserve0After = pool.reserve0();
+        uint256 reserve1After = pool.reserve1();
+
+        assertGt(reserve0After, reserve0Before);
+        assertGt(reserve1After, reserve1Before);
+    }
+
+    function testClaimFeesDirect() external {
+        deployPoolCoins();
+        mintAndBurnTokensForPoolFraxUsdc();
+
+        // Perform a swap to generate fees
+        IRouter.Route[] memory routes = new IRouter.Route[](1);
+        routes[0] = IRouter.Route(address(USDC), address(FRAX), true, address(0));
+        USDC.approve(address(router), USDC_1);
+        router.swapExactTokensForTokens(USDC_1, 0, routes, address(owner), block.timestamp);
+
+        skip(1801);
+        vm.roll(block.number + 1);
+
+        uint256 ownerUSDCBefore = USDC.balanceOf(address(owner));
+        uint256 ownerFRAXBefore = FRAX.balanceOf(address(owner));
+
+        (uint256 claimed0, uint256 claimed1) = pool.claimFees();
+
+        uint256 ownerUSDCAfter = USDC.balanceOf(address(owner));
+        uint256 ownerFRAXAfter = FRAX.balanceOf(address(owner));
+
+        assertGe(claimed0, 0);
+        assertGe(claimed1, 0);
+        assertEq(ownerUSDCAfter - ownerUSDCBefore, claimed0);
+        assertEq(ownerFRAXAfter - ownerFRAXBefore, claimed1);
+    }
 }
