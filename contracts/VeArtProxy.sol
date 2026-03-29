@@ -294,19 +294,28 @@ contract VeArtProxy is IVeArtProxy {
 
     /// @inheritdoc IVeArtProxy
    function corners(Config memory cfg, int256 l) public pure returns (Point[100] memory Line) {
-        int256 degrees1 = 360 * cfg.seed1 / 1000;
-        int256 degrees2 = 360 * (cfg.seed1 + 500) / 1000;
-        int256 baseX = 2000 + ((l % 2) * 1200 * Trig.dcos(degrees1) / 1e6) + (((l + 1) % 2) * (1200 * Trig.dcos(degrees2)) / 1e6);
-        int256 baseY = 2000 + ((l % 2) * 1200 * Trig.dsin(degrees1) / 1e6) + (((l + 1) % 2) * (1200 * Trig.dsin(degrees2)) / 1e6);
+        (int256 baseX, int256 baseY) = _cornersBase(cfg.seed1, l);
         int256 k = 100 + (1 + l) * 4000 / cfg.maxLines / 4;
+        int256 direction = (l % 2) * 2 - 1;
+        int256 angleOffset = 360 * l / cfg.maxLines;
 
         for (int256 p = 0; p < 100; p++) {
-            int256 angle3 = 360 * l / cfg.maxLines + (360 * p / 99);
+            int256 angle3 = angleOffset + (360 * p / 99);
             Line[uint256(p)] = Point({
-                x: baseX +                     k * Trig.dcos(angle3) / 1e6,
-                y: baseY + ((l % 2) * 2 - 1) * k * Trig.dsin(angle3) / 1e6
+                x: baseX +             k * Trig.dcos(angle3) / 1e6,
+                y: baseY + direction * k * Trig.dsin(angle3) / 1e6
             });
         }
+    }
+
+    /// @dev Computes base coordinates for corners to reduce stack depth
+    function _cornersBase(int256 seed1, int256 l) internal pure returns (int256 baseX, int256 baseY) {
+        int256 degrees1 = 360 * seed1 / 1000;
+        int256 degrees2 = 360 * (seed1 + 500) / 1000;
+        int256 lMod = l % 2;
+        int256 lModAlt = (l + 1) % 2;
+        baseX = 2000 + (lMod * 1200 * Trig.dcos(degrees1) / 1e6) + (lModAlt * 1200 * Trig.dcos(degrees2) / 1e6);
+        baseY = 2000 + (lMod * 1200 * Trig.dsin(degrees1) / 1e6) + (lModAlt * 1200 * Trig.dsin(degrees2) / 1e6);
     }
 
     function drawCurves (Config memory cfg) internal view returns (bytes memory shape) { 
@@ -323,18 +332,23 @@ contract VeArtProxy is IVeArtProxy {
         int256 k1 = (cfg.seed1 + 1) % 2;
         int256 k2 = cfg.seed1 % 2;
         int256 kA2 = -100 + 4200 * l / cfg.maxLines;
-    
-        for (int256 p = 0; p < 100; p++) {
-            int256 _sin = Trig.sin(1e18 * TWO_PI * uint256(p) / 99);
-            int256 noise = PerlinNoise.noise3d(x, p * 65536 / 2000, z);
-            int256 a1 = (-100 + 4200 * p / 99) + _sin * noise * 1700 / 65536 / 1e18;
-            int256 a2 = kA2                    + _sin * noise * 15000 / 65536 / 1e18;
 
+        for (int256 p = 0; p < 100; p++) {
+            (int256 a1, int256 a2) = _curvesPoint(x, z, kA2, p);
             Line[uint256(p)] = Point({
                 x: k1 * a1 + k2 * a2,
                 y: k1 * a2 + k2 * a1
             });
         }
+    }
+
+    /// @dev Computes curve point coordinates to reduce stack depth
+    function _curvesPoint(int256 x, int256 z, int256 kA2, int256 p) internal pure returns (int256 a1, int256 a2) {
+        int256 _sin = Trig.sin(1e18 * TWO_PI * uint256(p) / 99);
+        int256 noise = PerlinNoise.noise3d(x, p * 65536 / 2000, z);
+        int256 sinNoise = _sin * noise;
+        a1 = (-100 + 4200 * p / 99) + sinNoise * 1700 / 65536 / 1e18;
+        a2 = kA2                     + sinNoise * 15000 / 65536 / 1e18;
     }
 
     function drawSpiral (Config memory cfg) internal view returns (bytes memory shape) { 
