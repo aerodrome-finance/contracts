@@ -104,3 +104,21 @@ guideline for licensing. See LICENSE and NOTICE files.
 | VotingRewardsFactory               | [0x45cA74858C579E717ee29A86042E0d53B252B504](https://basescan.org/address/0x45cA74858C579E717ee29A86042E0d53B252B504#code) |
 | Pool               | [0xA4e46b4f701c62e14DF11B48dCe76A7d793CD6d7](https://basescan.org/address/0xA4e46b4f701c62e14DF11B48dCe76A7d793CD6d7#code) |
 
+## Base Sepolia Deployment
+
+| Name               | Address                                                                                                                               |
+| :----------------- | :------------------------------------------------------------------------------------------------------------------------------------ |
+| ArtProxy               | [0x8676F65b3e24d6878669CACeB73F0A039B0D966e](https://sepolia.basescan.org/address/0x8676F65b3e24d6878669CACeB73F0A039B0D966e#code) |
+| RewardsDistributor               | [0x922C8FE1E7c5929eAcf49715c6b6C61193b8EcF2](https://sepolia.basescan.org/address/0x922C8FE1E7c5929eAcf49715c6b6C61193b8EcF2#code) |
+| FactoryRegistry               | [0x586bdfd4B9c5cFD1F1A56B068a4A477bdA1286ab](https://sepolia.basescan.org/address/0x586bdfd4B9c5cFD1F1A56B068a4A477bdA1286ab#code) |
+| Forwarder               | [0x96388c3407cD78f05335bfec6709CB132920eA34](https://sepolia.basescan.org/address/0x96388c3407cD78f05335bfec6709CB132920eA34#code) |
+| GaugeFactory               | [0x974c1f390c53685E9c9d1b66f222a118F58793C1](https://sepolia.basescan.org/address/0x974c1f390c53685E9c9d1b66f222a118F58793C1#code) |
+| ManagedRewardsFactory               | [0x361aBD5cCAFf2B3966c2b9432d710b5787FbD6EF](https://sepolia.basescan.org/address/0x361aBD5cCAFf2B3966c2b9432d710b5787FbD6EF#code) |
+| Minter               | [0x923744cA1A96B338d427e028b5b94A6F55fbb6dF](https://sepolia.basescan.org/address/0x923744cA1A96B338d427e028b5b94A6F55fbb6dF#code) |
+| PoolFactory               | [0x90f7DbEc17F49825058A29f892595F5ec93bD902](https://sepolia.basescan.org/address/0x90f7DbEc17F49825058A29f892595F5ec93bD902#code) |
+| Router               | [0x85C5656dE0eBAEC8eF1b8949E7654ee1e654b49C](https://sepolia.basescan.org/address/0x85C5656dE0eBAEC8eF1b8949E7654ee1e654b49C#code) |
+| AERO               | [0x13A0fB078d4e73fD9A876A34D07B882Eac6CBDaD](https://sepolia.basescan.org/address/0x13A0fB078d4e73fD9A876A34D07B882Eac6CBDaD#code) |
+| Voter               | [0xd35E9B9622Fa7D1ADeEE4646E77dE42AA5C0ABF9](https://sepolia.basescan.org/address/0xd35E9B9622Fa7D1ADeEE4646E77dE42AA5C0ABF9#code) |
+| VotingEscrow               | [0x3A382b7849e8BF9865218309316F4a3F02087Dd9](https://sepolia.basescan.org/address/0x3A382b7849e8BF9865218309316F4a3F02087Dd9#code) |
+| VotingRewardsFactory               | [0xeeD6ff0305D95545EAA84fbc0e89FB9AB1fcb83F](https://sepolia.basescan.org/address/0xeeD6ff0305D95545EAA84fbc0e89FB9AB1fcb83F#code) |
+| Pool               | [0x2c720389024f0cd55d1857f0192ffac6a3609f3b](https://sepolia.basescan.org/address/0x2c720389024f0cd55d1857f0192ffac6a3609f3b#code) |
